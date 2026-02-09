@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import SystemHeader from "../components/ui/SystemHeader";
+import Navbar from "../components/navbar/Navbar";
 
 const MainLayout: React.FC = () => {
   return (
@@ -15,6 +16,8 @@ const MainLayout: React.FC = () => {
       <div className="">
         <Outlet />
       </div>
+
+      <Navbar />
     </div>
   );
 };

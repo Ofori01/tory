@@ -2,46 +2,45 @@ import React, { useState } from "react";
 import LoginButton from "../../components/auth/LoginButton";
 import AuthDialog from "../../components/auth/AuthDialog";
 import SystemHeader from "../../components/ui/SystemHeader";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
     setShowAuthDialog(true);
+   
   };
 
   const handlePinSubmit = async () => {
     setLoading(true);
 
-    // Simulate authentication
+   
     try {
       console.log("Authenticating with PIN:", pin);
-      // Add your authentication logic here
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Handle successful authentication
-      console.log("Authentication successful");
+      
+      
       setShowAuthDialog(false);
       setPin("");
+      navigate('/general')
     } catch (error) {
       console.error("Authentication failed:", error);
-      // Handle authentication error
-      setPin(""); // Clear pin on failure
+     
+      setPin(""); 
     } finally {
       setLoading(false);
     }
   };
 
-//   const handleAuthDialogClose = () => {
-//     if (!loading) {
-//       setShowAuthDialog(false);
-//       setPin("");
-//     }
-//   };
+  //   const handleAuthDialogClose = () => {
+  //     if (!loading) {
+  //       setShowAuthDialog(false);
+  //       setPin("");
+  //     }
+  //   };
 
   return (
     <div className="min-h-screen bg-background">
