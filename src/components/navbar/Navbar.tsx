@@ -23,11 +23,11 @@ const Navbar: React.FC<{ className: string }> = ({ className }) => {
   ];
 
   return (
-    <div className={cn("border-2 rounded-lg border-border p-1 grid grid-rows-1 justify-between items-center", className)}>
+    <nav className={cn("border-2 rounded-lg border-border p-1 grid grid-rows-1 justify-between items-center", className)}>
       {navItems.map((nav, index) => (
         <MainNavItem {...nav} key={index} />
       ))}
-    </div>
+    </nav>
   );
 };
 
