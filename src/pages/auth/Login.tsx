@@ -12,24 +12,21 @@ const Login: React.FC = () => {
 
   const handleLoginClick = () => {
     setShowAuthDialog(true);
-   
   };
 
   const handlePinSubmit = async () => {
     setLoading(true);
 
-   
     try {
       console.log("Authenticating with PIN:", pin);
-      
-      
+
       setShowAuthDialog(false);
       setPin("");
-      navigate('/general')
+      navigate("/");
     } catch (error) {
       console.error("Authentication failed:", error);
-     
-      setPin(""); 
+
+      setPin("");
     } finally {
       setLoading(false);
     }

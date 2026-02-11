@@ -1,12 +1,13 @@
 import React from "react";
-import { MainNav, MainNavItem, type MainNavItemProps } from "../ui/MainNav";
-import { Camera, HomeIcon, MenuIcon } from "lucide-react";
+import { MainNavItem, type MainNavItemProps } from "../ui/MainNav";
+import { Camera, LayoutGrid, MenuIcon } from "lucide-react";
+import { cn } from "../../lib/utils";
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ className: string }> = ({ className }) => {
   const navItems: MainNavItemProps[] = [
     {
-      to: "/general",
-      icon: <HomeIcon />,
+      to: "/",
+      icon: <LayoutGrid />,
       name: "General",
     },
     {
@@ -16,17 +17,17 @@ const Navbar: React.FC = () => {
     },
     {
       to: "/logs",
-      icon: <MenuIcon />,
+      icon: <MenuIcon  />,
       name: "Logs",
     },
   ];
 
   return (
-    <MainNav>
+    <div className={cn("border-2 rounded-lg border-border p-1 grid grid-rows-1 justify-between items-center", className)}>
       {navItems.map((nav, index) => (
         <MainNavItem {...nav} key={index} />
       ))}
-    </MainNav>
+    </div>
   );
 };
 
