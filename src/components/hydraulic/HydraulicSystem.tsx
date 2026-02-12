@@ -22,7 +22,6 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 
 /**
  * The main Hydraulic System flow diagram.
- * Renders inside a GeneralSection wrapper in GeneralPage.
  */
 const HydraulicSystem: React.FC = () => {
   const nodes = useMemo(() => createInitialNodes(), []);

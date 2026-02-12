@@ -37,7 +37,6 @@ const LEFT_SOURCE: HandleConfig = {
 };
 
 /**
- * Build the default set of nodes for the Hydraulic System.
  * Each node declares exactly which handles it needs.
  */
 export function createInitialNodes(): Node<HydraulicNodeData>[] {
@@ -170,7 +169,6 @@ const MARKER_END = {
 
 /**
  * Edges describing the hydraulic flow.
- * All edges are dashed with a small arrow marker.
  */
 export function createInitialEdges(): Edge[] {
   return [

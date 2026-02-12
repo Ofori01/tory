@@ -5,12 +5,7 @@ import NodeToggleRow from "./NodeToggleRow";
 import NodeIndicatorRow from "./NodeIndicatorRow";
 import { cn } from "../../../lib/utils";
 
-/**
- * Generic node used in the Hydraulic System flow diagram.
- * Renders a bordered box with a label, optional toggle switches,
- * and optional status indicators. Visually dims when `active` is false.
- * Only renders the handles (connection dots) specified in data.handles.
- */
+
 const HydraulicNode: React.FC<NodeProps> = ({ data }) => {
   const {
     label,
