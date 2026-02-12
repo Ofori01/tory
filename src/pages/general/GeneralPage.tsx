@@ -2,6 +2,7 @@ import React from "react";
 import GeneralSection from "./sections/GeneralSection";
 import InternalSection from "./sections/InternalSection";
 import DriverCabin from "./sections/DriverCabin";
+import { HydraulicSystem } from "../../components/hydraulic";
 
 const GeneralPage: React.FC = () => {
   return (
@@ -10,7 +11,9 @@ const GeneralPage: React.FC = () => {
       <GeneralSection sectionTitle="Internal & External">
         <InternalSection />
       </GeneralSection>
-      <div className="h-full bg-primary col-span-2">hi</div>
+      <GeneralSection sectionTitle="Hydraulic System" className="col-span-2">
+        <HydraulicSystem />
+      </GeneralSection>
       <GeneralSection sectionTitle="Driver Cabin">
         <DriverCabin />
       </GeneralSection>

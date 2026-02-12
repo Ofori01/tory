@@ -13,13 +13,13 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("rounded-lg bg-card ", className)}>
+    <div className={cn("rounded-lg bg-card flex flex-col", className)}>
       {/* section title */}
       <div className="p-3">
         <h1 className="tracking-wide"> {sectionTitle} </h1>
       </div>
       <hr className="" />
-      <div className="p-2">{children}</div>
+      <div className="p-2 flex-1">{children}</div>
     </div>
   );
 };
