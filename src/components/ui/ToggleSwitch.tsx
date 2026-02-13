@@ -27,7 +27,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-3 w-5.75 items-center rounded-full transition-colors",
+        "relative inline-flex h-3 w-5.75 items-center rounded-full transition-colors cursor-pointer",
         bgColor,
         className,
       )}

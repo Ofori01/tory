@@ -4,7 +4,7 @@ import ProtectedRoutes from "./layouts/auth/ProtectedRoutes";
 import MainLayout from "./layouts/MainLayout";
 import Login from "./pages/auth/Login";
 import GeneralPage from "./pages/general/GeneralPage";
-import CameraPage from "./pages/CameraPage";
+import CameraPage from "./pages/camera/CameraPage";
 import LogsPage from "./pages/LogsPage";
 
 function App() {
