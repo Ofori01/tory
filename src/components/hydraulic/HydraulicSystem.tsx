@@ -46,16 +46,16 @@ const HydraulicSystem: React.FC = () => {
         panOnScroll={false}
         zoomOnScroll={false}
         zoomOnPinch={false}
-        zoomOnDoubleClick={false}
+        zoomOnDoubleClick={true}
         preventScrolling={false}
         minZoom={0.4}
         maxZoom={1.5}
         className="bg-transparent"
       >
         <Background
-          variant={BackgroundVariant.Dots}
+          variant={BackgroundVariant.Cross}
           gap={16}
-          size={1}
+          size={3}
           color="rgba(255, 255, 255, 0.15)"
         />
         <Controls

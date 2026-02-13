@@ -14,7 +14,7 @@ const MainLayout: React.FC = () => {
             label: "System Fault",
           }}
         />
-        <main className="mx-10 mt-2 mb-2 flex-1 justify-stretch">
+        <main className="mx-10 mb-2 flex-1 justify-stretch">
           <Outlet />
         </main>
 
