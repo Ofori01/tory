@@ -8,7 +8,7 @@ export interface SectionItemProps {
 
 const SectionItem: React.FC<SectionItemProps> = ({ children, className }) => {
   return (
-    <div className={cn("flex justify-between items-center w-full", className)}>
+    <div className={cn("flex justify-between items-center w-full grow", className)}>
       {children}
     </div>
   );

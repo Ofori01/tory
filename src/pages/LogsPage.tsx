@@ -126,6 +126,8 @@ const LogsPage: React.FC = () => {
           onFilterChange={handleFilterChange}
           onInfoClick={() => setIsModalOpen(true)}
         />
+        <hr className='mb-3' />
+
 
         {isRecordingsView ? (
           <RecordingsList
@@ -150,6 +152,7 @@ const LogsPage: React.FC = () => {
           onClose={() => setSelectedRecording(null)}
         />
       )}
+
     </div>
   );
 };

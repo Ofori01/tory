@@ -6,8 +6,8 @@ import { ValueDisplay } from "../../../components/ui";
 const DriverCabin: React.FC = () => {
   const [driverCamRecording, setDriverCameraRecording] = useState(false);
   return (
-    <>
-      <div className="bg-card-foreground rounded-lg px-4 py-3 w-full flex flex-col gap-y-3.5">
+    <div className="flex flex-col h-full">
+      <div className="bg-card-foreground rounded-lg px-4 py-3 w-full h-full flex flex-col gap-y-3.5 grow">
         <SectionItem>
           <span className="text-zinc-300 text-sm">Driver Camera Recording</span>
           <RadioButton
@@ -76,7 +76,7 @@ const DriverCabin: React.FC = () => {
           <ValueDisplay value="- 100+" />
         </SectionItem>
       </div>
-    </>
+    </div>
   );
 };
 

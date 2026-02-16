@@ -21,7 +21,7 @@ const InternalSection: React.FC = () => {
   const battery = "12%";
 
   return (
-    <div className="bg-card-foreground rounded-lg px-4 py-3 w-full flex flex-col gap-y-3.5">
+    <div className="bg-card-foreground rounded-lg px-4 py-3 w-full h-full flex flex-col flex-">
       {/* In-Use Sensor - Radio */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">In-Use Sensor</span>

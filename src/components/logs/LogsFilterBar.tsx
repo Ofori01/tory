@@ -99,7 +99,7 @@ const LogsFilterBar: React.FC<LogsFilterBarProps> = ({
           <Info size={20} />
         </button>
       </div>
-      <hr className="mb-3" />
+      {/* <hr className="mb-3" /> */}
     </>
   );
 };
