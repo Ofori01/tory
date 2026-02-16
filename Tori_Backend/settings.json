@@ -1,0 +1,69 @@
+{
+  "General": {
+    "Internal_External": {
+      "In_Use_Sensor": false,
+      "In_Use_Indication": "OFF",
+      "Int_Lights": "OFF",
+      "Ext_Lights": "OFF",
+      "Door_Lock": "ON",
+      "Loudspeaker": "ON",
+      "Exhaust_Fan": "ON",
+      "BLOWER_Fan": "OFF",
+      "Int_Temp": 22,
+      "Ext_Temp": 18,
+      "Battery": "80%"
+    },
+    "Hydraulic_System": {
+      "Fresh_Water": {
+        "Empty": "ON"
+      },
+      "Pump_1": "ON",
+      "Grey_Water": {
+        "Full": "ON",
+        "Empty": "ON"
+      },
+      "Pump_2": "ON",
+      "Toilet_System": {
+        "Toilet": "ON",
+        "Controller": "ON",
+        "Vacuum_Pump": "OFF"
+      },
+      "Waste": {
+        "Full": "ON"
+      },
+      "Valve_1": "ON",
+      "Valve_2": "ON"
+    },
+    "Back_Camera_Recording": {
+      "Driver_Camera_Recording": true,
+      "Driver_Cabin": true,
+      "GPS_Connection": true,
+      "LTE_Connection": true,
+      "Emergency_Button": true,
+      "Outrigger_Limit_Switch_1": true,
+      "Outrigger_Limit_Switch_2": false,
+      "Driver_Mode": false,
+      "Toilet_Mode": false
+    },
+    "Adjustable": {
+      "Min_BLOWER_Temp": 34,
+      "Exhaust_Fan_Delta": 22,
+      "Set_Audio_Volume": 26
+    }
+  },
+  "Camera": {
+    "Front": {
+      "Camera_Recording": "OFF",
+      "FPS": 33
+    },
+    "Back": {
+      " Camera_Recording ": "ON",
+      "FPS": 29
+    }
+  },
+  "System": {
+    "Vehicle_Number": "vx1245",
+    "Software_Version": "XXXXX",
+    "System_Language": "ENGLISH"
+  }
+}
