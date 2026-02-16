@@ -16,7 +16,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 }) => {
   const bgColor = checked
     ? color === "orange"
-      ? "bg-orange-500"
+      ? "bg-[#FB923C]"
       : "bg-blue-500"
     : "bg-zinc-600";
 
