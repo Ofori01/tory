@@ -27,7 +27,7 @@ const SystemHeader: React.FC<SystemHeaderProps> = ({
   };
 
   return (
-    <div className={`mx-4 mt-2 mb-2 ${className}`}>
+    <div className={`mx-4 mt-2  ${className}`}>
       <div className="flex justify-between items-center p-6 bg-transparent">
         <h1 className="text-xl font-bold text-muted-foreground-foreground font-heading">
           {title}

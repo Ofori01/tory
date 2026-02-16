@@ -13,7 +13,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("rounded-lg bg-card flex flex-col", className)}>
+    <div className={cn("rounded-lg bg-card flex flex-col h-full w-full", className)}>
       {/* section title */}
       <div className="p-3">
         <h1 className="tracking-wide"> {sectionTitle} </h1>
