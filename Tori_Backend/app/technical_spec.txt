@@ -1,0 +1,286 @@
+Tory controller
+Technical Specification: Settings API with SSE for Logs & WebRTC Camera Streaming
+1. Overview
+This document defines the API architecture for a settings page that interacts with a Python server. The UI fetches settings once when loaded and sends updates only when a user makes changes. Additionally, the server pushes log messages to the UI in real-time using Server-Sent Events (SSE). The system also includes an API for retrieving WebRTC camera streams.
+The user interface must be developed using ReactJS.
+Note:
+The entire system is designed to run offline on a Raspberry Pi running Debian Bookworm. No internet connection is required for the UI, server, or any of the streaming and logging functionalities. All components should be tested and validated in this offline environment.
+1.1 Offline Architecture
+Offline Operation on Raspberry Pi
+The entire system is designed to run offline on a Raspberry Pi running Debian Bookworm. The user interface is a web-based React application served locally by the Python backend. There is no internet connection involved at any stage.
+Key Notes for UI Developers:
+•	All assets must be local: Avoid using any external CDNs (fonts, libraries, styles).
+•	Runs in browser, locally: The UI will be accessed via a browser on the Raspberry Pi (e.g., http://localhost:8000) or over a local network.
+•	No online dependencies: Ensure no part of the UI (like WebRTC, error tracking, or updates) requires internet access.
+•	Lightweight & efficient: Optimize performance to run smoothly on Raspberry Pi hardware with limited resources.
+
+
+2. API Design
+The API consists of three primary components:
+1. Settings API (`GET /settings`, `PATCH /settings`) for fetching and updating settings.
+2. Logs API (`GET /logs?level={level}` using SSE) for real-time log streaming.
+3. Cameras API (GET /camera/{position}, GET /recordings/file) – for retrieving live camera streams and recorded video segments.
+4. Recording Playback – handled through MP4 file serving via GET /recordings/file, triggered by user interactions in the UI (detailed in section 2.3.3).
+2.1 Settings API (REST)
+2.1.1 GET /settings
+Purpose: Fetch the current system settings when the UI loads.
+Request:
+•	Method: GET
+URL: /settings
+Response:
+•	Content-Type: application/json
+Status: 200 OK
+Response Body (Example, see full Json at the end):
+{
+  "General": {
+    "Internal_External": {
+      "In_Use_Sensor": true
+}
+        "System": {
+    "Vehicle_Number": "Unknown",
+  }
+}
+2.1.2 PATCH /settings
+Purpose: Partially update one or more settings.
+Request:
+•	Method: PATCH
+URL: /settings
+Content-Type: application/json
+Request Body (Example - Updating Lights & Blower Temperature):
+{
+  "General": {
+    "Internal_External": {
+      "Int_Lights": "ON"
+    },
+    "Adjustable": {
+      "Min_BLOWER_Temp": 22
+    }
+  }
+}
+Response:
+•	Content-Type: application/json
+Status: 200 OK
+Response Body (Example):
+{
+  "Status": "Success"
+}
+2.2 Logs API (SSE)
+2.2.1 GET /logs?level={level}
+Purpose: Stream real-time logs from the server to the UI using Server-Sent Events (SSE), filtering logs by level.
+Request:
+•	Method: GET
+URL: /logs?level={level}
+2.2.2 Show All Logs Toggle
+A toggle button labeled 'Show All Logs' will be available on the logs screen. This button has two states:
+- **True**: Displays all logs (INFO, DEBUG, WARNING, and ERROR).
+- **False**: Displays only ERROR logs.
+2.2.3 How Log Filtering Works
+The log filtering mechanism is managed by both the UI and the server:
+- **The UI sends a request** to `/logs?level={level}` based on user selection (e.g., "Show All Logs" = True → request `INFO` logs).
+- **The Server filters logs** before sending them to the UI.
+- **The UI receives only relevant logs** and updates the display dynamically.
+Log Level Filtering:
+Level	Logs Returned
+INFO	All logs (INFO, DEBUG, WARNING, ERROR)
+ERROR	WARNING and ERROR logs
+Responsibilities Breakdown
+**UI Responsibilities:**
+- Decides which logs to request (e.g., INFO or ERROR based on 'Show All Logs' toggle).
+
+**Server Responsibilities:**
+- Filters logs based on the requested `level` before sending them via SSE.
+Example Scenarios
+**Scenario 1: Show All Logs (`True`)**
+UI sends: `GET /logs?level=INFO`
+Server filters and streams:
+data: [INFO] System started
+data: [DEBUG] Sensor updated
+data: [WARNING] High temperature
+data: [ERROR] Camera failure
+**Scenario 2: Show Only Errors (`False`)**
+UI sends: `GET /logs?level=ERROR`
+Server filters and streams:
+data: [WARNING] High temperature
+data: [ERROR] Camera failure
+
+2.3 Cameras API (REST)
+2.3.1 GET /camera/{position}
+Purpose: Retrieve the WebRTC stream URL for a specific camera.
+Request:
+•	Method: GET
+URL: /camera/front or /camera/back
+Response Body (Example of Front Camera):
+{
+    "Camera": "Front",
+    "WebRTCUrl": "webrtc://192.168.1.10/stream/front_camera"
+}
+2.3.2 Camera Recording and Recordings Explanation
+- **Camera Recording**: Enables or disables real-time recording for the selected camera.
+- **Recordings**: Displays past recorded footage. This should initially be set to `False`.
+2.3.3 Playback of Past Recordings (Recording View Mode)
+
+Purpose:
+Enable users to view previously recorded footage from the camera and navigate backward or forward in time.
+Behavior:
+•	On the Camera screen, under the live feed, a "Recordings" button will be shown.
+•	Clicking this button switches the UI into Recording View mode.
+o	The live WebRTC stream is replaced with a video player for past recordings.
+•	In this mode, arrow buttons (left and right) allow navigation through time:
+o	A single click jumps 10 seconds backward or forward.
+o	Holding an arrow continuously seeks in the arrow direction at a rate of 1 minute per second held.
+Frontend Behavior:
+•	The frontend maintains the current playback timestamp.
+•	When the user interacts with the arrows:
+o	The UI calculates the target timestamp.
+o	It sends a request to retrieve the corresponding recording segment:
+
+GET /recordings/file?camera={camera}&timestamp={ISO-8601-timestamp}
+Example:
+GET /recordings/file?camera=front&timestamp=2025-03-23T14:00:10
+o	If the segment exists:
+	The backend returns the .mp4 file for playback.
+	The UI replaces the current video with the new segment.
+o	If the segment does not exist:
+	The backend responds with HTTP 404 Not Found.
+	It may optionally include a JSON response:
+{
+  "message": "Recording not available for the requested timestamp."
+}
+	The UI displays a user-friendly message such as: "No recording available at this time."
+Backend Responsibilities:
+•	Store recordings as .mp4 files segmented by time (e.g., 10s or 60s chunks).
+•	Use a file naming convention that supports efficient lookup by camera and timestamp.
+•	The /recordings/file endpoint:
+o	Parses the timestamp.
+o	Finds the corresponding file.
+o	Returns the file as a binary response (Content-Type: video/mp4).
+o	Returns a 404 if the segment is not found.
+Example Workflow:
+1.	User presses the left arrow at 14:00:20 → UI calculates 14:00:10.
+2.	UI sends:
+GET /recordings/file?camera=front&timestamp=2025-03-23T14:00:10
+3.	Backend returns either:
+o	The appropriate .mp4 file.
+o	A 404 Not Found with an optional message.
+4.	UI switches the video player source or shows a "No recording" message.
+
+2.4 Error Handling
+Proper error handling ensures the UI remains responsive even when the backend encounters issues. Below are the expected UI behaviors in different failure scenarios.
+2.4.1 General API Request Failures
+If the server does not respond to fetch requests:
+•	Retry Logic:
+o	Retry the request up to 3 times, waiting 5 seconds between attempts.
+o	Show “Trying to connect to server” while retrying.
+o	If still failing, display an error message: "Server is unavailable. Please restart it."
+2.4.2 Logs API Failure (GET /logs?level={level})
+If the logs request fails due to server issues (500, 504) or network failures:
+•	UI should retry the request automatically after 5 seconds.
+•	If retries fail, show: "Logs unavailable. Please try again later."
+•	If "Show All Logs" is toggled while the server is down, UI should still allow toggling, but show "Unable to load logs."
+2.4.3 Camera Streaming Failure (GET /camera/{position} → WebRTC URL invalid)
+If the camera stream fails to load:
+•	On the Camera Player, display: "Unable to load camera stream. Check logs for more information."
+•	DO NOT retry automatically—let the user click "Refresh Stream" to retry.
+2.4.4 Not Found (404 Not Found)
+If a specific resource (logs, camera, or settings) is not found:
+•	Show "No Data Available" instead of displaying an empty UI or breaking the page.
+2.5 Language Selection
+The system currently supports English only. However, the UI must be built with future support for multiple left-to-right (LTR) languages in mind, such as Spanish, German, and others.
+UI Behavior (Planned)
+•	A language selection button will be included in the settings page UI.
+•	For now, it will default to and display English only.
+•	In the future, clicking this button will show a list of available LTR languages.
+•	When implemented, selecting a language will:
+o	Dynamically update all UI text (labels, headers, messages, etc.).
+o	Trigger a PATCH /settings call to store the selected language under System.System_Language.
+o	Language switching logic will be handled entirely on the frontend.
+Startup Behavior
+•	On initial load, the UI reads the System_Language value from GET /settings.
+•	The interface initializes in English and should be designed to support switching to other LTR languages in future updates.
+
+3. UI Design Considerations
+- **General and Camera Pages Error Display:**
+  - Each page will have a dedicated error section showing the latest ERROR level log.
+  - If no new ERROR log appears within 10 seconds, display 'N/A'.
+  - The error messages should be highlighted in a distinct color to grab attention.
+- **Vehicle Number Field:**
+  - The Vehicle Number should be keyboard-editable, allowing direct letters and numbers input.
+- **Consistency with Attached UI Screens:**
+  - Follow the layout and design principles observed in the attached images.
+  - Maintain a clear hierarchy of elements to ensure easy readability and usability.
+- The buttons “Recordings:” in camera screen were removed, ignore them.
+
+4. UI Design Reference
+The UI design should follow the specifications provided in the attached PDF files. Refer to these documents for layout, visual elements, and interactions.
+
+5. Settings Json
+
+{
+  "General": {
+    "Internal_External": {
+      "In_Use_Sensor": true,
+      "In_Use_Indication": "ON",
+      "Int_Lights": "OFF",
+      "Ext_Lights": "ON",
+      "Door_Lock": "ON",
+      "Loudspeaker": "ON",
+      "Exhaust_Fan": "ON",
+      "BLOWER_Fan": "ON",
+      "Int_Temp": 22,
+      "Ext_Temp": 18,
+      "Battery": "80%"
+    },
+    "Hydraulic_System": {
+      "Fresh_Water": {
+        "Empty": "ON"
+      },
+      "Pump_1": "ON",
+      "Grey_Water": {
+        "Full": "ON",
+        "Empty": "ON"
+      },
+      "Pump_2": "ON",
+      "Toilet_System": {
+        "Toilet": "ON",
+        "Controller": "ON",
+        "Vacuum_Pump": "ON"
+      },
+      "Waste": {
+        "Full": "ON"
+      },
+      "Valve_1": "ON",
+      "Valve_2": "ON"
+    },
+    "Back_Camera_Recording": {
+      "Driver_Camera_Recording": true,
+      "Driver_Cabin": true,
+      "GPS_Connection": true,
+      "LTE_Connection": true,
+      "Emergency_Button": true,
+      "Outrigger_Limit_Switch_1": false,
+      "Outrigger_Limit_Switch_2": false,
+      "Driver_Mode": false,
+      "Toilet_Mode": true
+    },
+    "Adjustable": {
+      "Min_BLOWER_Temp": 24,
+      "Exhaust_Fan_Delta": 24,
+      "Set_Audio_Volume": 24
+    }
+  },
+  "Camera": {
+    "Front": {
+      "Camera_Recording": "ON",
+      "FPS": 30
+    },
+    "Back": {
+      " Camera_Recording ": "ON",
+      "FPS": 30
+    }
+  },
+  "System": {
+    "Vehicle_Number": "Unknown",
+    "Software_Version": "XXXXX",
+    "System_Language": "ENGLISH"
+  }
+}

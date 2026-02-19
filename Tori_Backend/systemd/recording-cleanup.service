@@ -1,0 +1,8 @@
+
+[Unit]
+Description=Tori Recording Cleanup
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/Tori/cleanup_old_recordings.py
+WorkingDirectory=/home/pi/Tori
+User=pi
