@@ -10,6 +10,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { HydraulicNode } from "./nodes";
 import { createInitialNodes, createInitialEdges } from "./config";
+import type { HydraulicSystem as HydraulicSystemData } from "../../types/dtos/settings";
 
 /** Register custom node types once (outside render) */
 const nodeTypes: NodeTypes = {
@@ -20,11 +21,15 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: true,
 };
 
+interface HydraulicSystemProps {
+  data: HydraulicSystemData;
+}
+
 /**
  * The main Hydraulic System flow diagram.
  */
-const HydraulicSystem: React.FC = () => {
-  const nodes = useMemo(() => createInitialNodes(), []);
+const HydraulicSystem: React.FC<HydraulicSystemProps> = ({ data }) => {
+  const nodes = useMemo(() => createInitialNodes(data), [data]);
   const edges = useMemo(() => createInitialEdges(), []);
 
   return (

@@ -13,8 +13,8 @@ function App() {
       <Route path="/login" element={<Login />} />
 
       <Route element={<ProtectedRoutes />}>
-        <Route path="/*" element={<MainLayout />} >
-          <Route index  element={<GeneralPage />} />
+        <Route path="/*" element={<MainLayout />}>
+          <Route index element={<GeneralPage />} />
           <Route path="camera" element={<CameraPage />} />
           <Route path="logs" element={<LogsPage />} />
         </Route>

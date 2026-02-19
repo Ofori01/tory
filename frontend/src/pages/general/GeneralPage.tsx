@@ -3,19 +3,55 @@ import GeneralSection from "./sections/GeneralSection";
 import InternalSection from "./sections/InternalSection";
 import DriverCabin from "./sections/DriverCabin";
 import { HydraulicSystem } from "../../components/hydraulic";
+import { useGetSettings } from "../../hooks/querries/useSettingsQuerries";
+import {
+  SectionSkeleton,
+  HydraulicSkeleton,
+  DriverCabinSkeleton,
+} from "../../components/ui/skeletons";
+import EmptyState from "../../components/ui/EmptyState";
 
 const GeneralPage: React.FC = () => {
+  const { data: settings, isLoading, isError } = useGetSettings();
+
+  const general = settings?.General;
+
   return (
     <div className="grid grid-cols-4 gap-3 items-stretch justify-center h-full">
-      {/* internal external */}
+      {/* Internal & External */}
       <GeneralSection sectionTitle="Internal & External">
-        <InternalSection />
+        {isLoading ? (
+          <SectionSkeleton rows={11} />
+        ) : isError || !general?.Internal_External ? (
+          <EmptyState message="Unable to load internal & external data" />
+        ) : (
+          <InternalSection data={general.Internal_External} />
+        )}
       </GeneralSection>
+
+      {/* Hydraulic System */}
       <GeneralSection sectionTitle="Hydraulic System" className="col-span-2">
-        <HydraulicSystem />
+        {isLoading ? (
+          <HydraulicSkeleton />
+        ) : isError || !general?.Hydraulic_System ? (
+          <EmptyState message="Unable to load hydraulic system data" />
+        ) : (
+          <HydraulicSystem data={general.Hydraulic_System} />
+        )}
       </GeneralSection>
+
+      {/* Driver Cabin */}
       <GeneralSection sectionTitle="Driver Cabin">
-        <DriverCabin />
+        {isLoading ? (
+          <DriverCabinSkeleton />
+        ) : isError || !general ? (
+          <EmptyState message="Unable to load driver cabin data" />
+        ) : (
+          <DriverCabin
+            recording={general.Back_Camera_Recording}
+            adjustable={general.Adjustable}
+          />
+        )}
       </GeneralSection>
     </div>
   );

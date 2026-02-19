@@ -1,5 +1,9 @@
 import { Position, type Node, type Edge, MarkerType } from "@xyflow/react";
 import type { HydraulicNodeData, HandleConfig } from "../types";
+import type { HydraulicSystem } from "../../../types/dtos/settings";
+
+/** Helper: convert an "ON"/"OFF" string to a boolean */
+const isOn = (val: string): boolean => val === "ON";
 
 /** IDs used as stable references across the system */
 export const NODE_IDS = {
@@ -37,9 +41,17 @@ const LEFT_SOURCE: HandleConfig = {
 };
 
 /**
- * Each node declares exactly which handles it needs.
+ * Build nodes from the API response.
+ * When `apiData` is provided the toggle / indicator states are derived from it;
+ * otherwise sensible defaults are used so the diagram still renders.
  */
-export function createInitialNodes(): Node<HydraulicNodeData>[] {
+export function createInitialNodes(
+  apiData?: HydraulicSystem,
+): Node<HydraulicNodeData>[] {
+  /** Map "ON"/"OFF" → status colour for toilet-system indicators */
+  const indicatorStatus = (val?: string): "normal" | "fault" =>
+    val === "ON" ? "normal" : "fault";
+
   return [
     {
       id: NODE_IDS.FRESH_WATER,
@@ -48,7 +60,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Fresh Water",
         active: true,
-        toggles: [{ id: "empty", label: "Empty", enabled: false }],
+        toggles: [
+          {
+            id: "empty",
+            label: "Empty",
+            enabled: apiData ? isOn(apiData.Fresh_Water.Empty) : false,
+          },
+        ],
         handles: [BOTTOM_SOURCE],
       },
     },
@@ -59,7 +77,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Pump #1",
         active: true,
-        toggles: [{ id: "power", label: "", enabled: true }],
+        toggles: [
+          {
+            id: "power",
+            label: "",
+            enabled: apiData ? isOn(apiData.Pump_1) : true,
+          },
+        ],
         handles: [
           TOP_TARGET,
           BOTTOM_SOURCE,
@@ -85,8 +109,16 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
         label: "Grey Water",
         active: true,
         toggles: [
-          { id: "full", label: "Full", enabled: false },
-          { id: "empty", label: "Empty", enabled: false },
+          {
+            id: "full",
+            label: "Full",
+            enabled: apiData ? isOn(apiData.Grey_Water.Full) : false,
+          },
+          {
+            id: "empty",
+            label: "Empty",
+            enabled: apiData ? isOn(apiData.Grey_Water.Empty) : false,
+          },
         ],
         handles: [TOP_TARGET, BOTTOM_SOURCE],
       },
@@ -98,7 +130,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Valve #1",
         active: true,
-        toggles: [{ id: "power", label: "", enabled: true }],
+        toggles: [
+          {
+            id: "power",
+            label: "",
+            enabled: apiData ? isOn(apiData.Valve_1) : true,
+          },
+        ],
         handles: [TOP_TARGET, BOTTOM_SOURCE],
       },
     },
@@ -109,7 +147,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Pump #2",
         active: true,
-        toggles: [{ id: "power", label: "", enabled: true }],
+        toggles: [
+          {
+            id: "power",
+            label: "",
+            enabled: apiData ? isOn(apiData.Pump_2) : true,
+          },
+        ],
         handles: [TOP_TARGET, BOTTOM_SOURCE, LEFT_SOURCE],
       },
     },
@@ -120,7 +164,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Valve #2",
         active: true,
-        toggles: [{ id: "power", label: "", enabled: true }],
+        toggles: [
+          {
+            id: "power",
+            label: "",
+            enabled: apiData ? isOn(apiData.Valve_2) : true,
+          },
+        ],
         handles: [TOP_TARGET, BOTTOM_SOURCE],
       },
     },
@@ -132,9 +182,27 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
         label: "Toilet System",
         active: true,
         indicators: [
-          { id: "toilet", label: "Toilet", status: "normal" },
-          { id: "controller", label: "Controller", status: "normal" },
-          { id: "vacuum-pump", label: "Vacuum Pump", status: "normal" },
+          {
+            id: "toilet",
+            label: "Toilet",
+            status: apiData
+              ? indicatorStatus(apiData.Toilet_System.Toilet)
+              : "normal",
+          },
+          {
+            id: "controller",
+            label: "Controller",
+            status: apiData
+              ? indicatorStatus(apiData.Toilet_System.Controller)
+              : "normal",
+          },
+          {
+            id: "vacuum-pump",
+            label: "Vacuum Pump",
+            status: apiData
+              ? indicatorStatus(apiData.Toilet_System.Vacuum_Pump)
+              : "normal",
+          },
         ],
         handles: [TOP_TARGET, BOTTOM_SOURCE, RIGHT_TARGET],
       },
@@ -146,7 +214,13 @@ export function createInitialNodes(): Node<HydraulicNodeData>[] {
       data: {
         label: "Waste",
         active: true,
-        toggles: [{ id: "full", label: "Full", enabled: false }],
+        toggles: [
+          {
+            id: "full",
+            label: "Full",
+            enabled: apiData ? isOn(apiData.Waste.Full) : false,
+          },
+        ],
         handles: [TOP_TARGET, LEFT_TARGET],
       },
     },

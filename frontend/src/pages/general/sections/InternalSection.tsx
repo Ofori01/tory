@@ -1,91 +1,89 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   ToggleSwitch,
   RadioButton,
   ValueDisplay,
 } from "../../../components/ui";
 import SectionItem from "../../../components/ui/SectionItem";
+import type { InternalExternal } from "../../../types/dtos/settings";
 
-const InternalSection: React.FC = () => {
-  const [inUseSensor, setInUseSensor] = useState(false);
-  const [inUseIndication, setInUseIndication] = useState(false);
-  const [intLights, setIntLights] = useState(true);
-  const [extLights, setExtLights] = useState(true);
-  const [doorLock, setDoorLock] = useState(true);
-  const [loudSpeaker, setLoudSpeaker] = useState(false);
-  const [exhaustFan, setExhaustFan] = useState(false);
-  const [blowerFan, setBlowerFan] = useState(false);
+interface InternalSectionProps {
+  data: InternalExternal;
+}
 
-  const intTemp = "12°";
-  const extTemp = "12°";
-  const battery = "12%";
+const InternalSection: React.FC<InternalSectionProps> = ({ data }) => {
+  const isOn = (val: string | boolean) =>
+    typeof val === "boolean" ? val : val === "ON";
 
   return (
     <div className="bg-card-foreground rounded-lg px-4 py-3 w-full h-full flex flex-col flex-">
       {/* In-Use Sensor - Radio */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">In-Use Sensor</span>
-        <RadioButton checked={inUseSensor} onChange={setInUseSensor} />
+        <RadioButton checked={data.In_Use_Sensor} onChange={() => {}} />
       </SectionItem>
 
-      {/* In-Use Indication - Toggle (off) */}
+      {/* In-Use Indication - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">In-Use Indication</span>
-        <ToggleSwitch checked={inUseIndication} onChange={setInUseIndication} />
+        <ToggleSwitch
+          checked={isOn(data.In_Use_Indication)}
+          onChange={() => {}}
+        />
       </SectionItem>
 
-      {/* Int. Lights - Toggle (on/blue) */}
+      {/* Int. Lights - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Int. Lights</span>
-        <ToggleSwitch checked={intLights} onChange={setIntLights} />
+        <ToggleSwitch checked={isOn(data.Int_Lights)} onChange={() => {}} />
       </SectionItem>
 
-      {/* Ext. Lights - Toggle (on/blue) */}
+      {/* Ext. Lights - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Ext. Lights</span>
-        <ToggleSwitch checked={extLights} onChange={setExtLights} />
+        <ToggleSwitch checked={isOn(data.Ext_Lights)} onChange={() => {}} />
       </SectionItem>
 
-      {/* Door Lock - Toggle (on/orange) */}
+      {/* Door Lock - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Door Lock</span>
-        <ToggleSwitch checked={doorLock} onChange={setDoorLock} />
+        <ToggleSwitch checked={isOn(data.Door_Lock)} onChange={() => {}} />
       </SectionItem>
 
-      {/* Loud Speaker - Toggle (off) */}
+      {/* Loud Speaker - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Loud Speaker</span>
-        <ToggleSwitch checked={loudSpeaker} onChange={setLoudSpeaker} />
+        <ToggleSwitch checked={isOn(data.Loudspeaker)} onChange={() => {}} />
       </SectionItem>
 
-      {/* Exhaust Fan - Toggle (off) */}
+      {/* Exhaust Fan - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Exhaust Fan</span>
-        <ToggleSwitch checked={exhaustFan} onChange={setExhaustFan} />
+        <ToggleSwitch checked={isOn(data.Exhaust_Fan)} onChange={() => {}} />
       </SectionItem>
 
-      {/* Blower Fan - Toggle (off) */}
+      {/* Blower Fan - Toggle */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Blower Fan</span>
-        <ToggleSwitch checked={blowerFan} onChange={setBlowerFan} />
+        <ToggleSwitch checked={isOn(data.BLOWER_Fan)} onChange={() => {}} />
       </SectionItem>
 
       {/* Int. Temp - Value Display */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Int. Temp</span>
-        <ValueDisplay value={intTemp} />
+        <ValueDisplay value={`${data.Int_Temp}°`} />
       </SectionItem>
 
       {/* Ext. Temp - Value Display */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Ext. Temp</span>
-        <ValueDisplay value={extTemp} />
+        <ValueDisplay value={`${data.Ext_Temp}°`} />
       </SectionItem>
 
       {/* Battery - Value Display */}
       <SectionItem>
         <span className="text-zinc-300 text-sm">Battery</span>
-        <ValueDisplay value={battery} />
+        <ValueDisplay value={data.Battery} />
       </SectionItem>
     </div>
   );
