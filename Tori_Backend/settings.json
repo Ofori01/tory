@@ -46,9 +46,9 @@
       "Toilet_Mode": false
     },
     "Adjustable": {
-      "Min_BLOWER_Temp": 34,
-      "Exhaust_Fan_Delta": 22,
-      "Set_Audio_Volume": 26
+      "Min_BLOWER_Temp": 31,
+      "Exhaust_Fan_Delta": 21,
+      "Set_Audio_Volume": 24
     }
   },
   "Camera": {

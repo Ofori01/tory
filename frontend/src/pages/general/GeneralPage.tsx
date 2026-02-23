@@ -27,7 +27,10 @@ const GeneralPage: React.FC = () => {
         ) : isError || !general?.Internal_External ? (
           <EmptyState message="Unable to load internal & external data" />
         ) : (
-          <InternalSection data={general.Internal_External} />
+          <InternalSection
+            data={general.Internal_External}
+            onSettingChange={updateSettings}
+          />
         )}
       </GeneralSection>
 
