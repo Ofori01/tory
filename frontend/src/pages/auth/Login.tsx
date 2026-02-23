@@ -3,31 +3,39 @@ import LoginButton from "../../components/auth/LoginButton";
 import AuthDialog from "../../components/auth/AuthDialog";
 import SystemHeader from "../../components/ui/SystemHeader";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
 
 const Login: React.FC = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
+  const { saveToLocalStorage } = useAuth();
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
     setShowAuthDialog(true);
   };
 
-  const handlePinSubmit = async () => {
+  const handlePinSubmit = async (submittedPin: string) => {
     setLoading(true);
 
     try {
-      console.log("Authenticating with PIN:", pin);
-
-      setShowAuthDialog(false);
-      setPin("");
-      navigate("/");
+      console.log("Authenticating with PIN:", submittedPin);
+      if (submittedPin !== "123456") {
+        toast.error("Invalid pin");
+        return;
+      } else {
+        setPin("");
+        navigate("/");
+        saveToLocalStorage({ isAuthenticated: true });
+      }
     } catch (error) {
       console.error("Authentication failed:", error);
 
       setPin("");
     } finally {
+      setShowAuthDialog(false);
       setLoading(false);
     }
   };

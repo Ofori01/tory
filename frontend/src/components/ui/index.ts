@@ -5,5 +5,6 @@ export { default as SystemHeader } from "./SystemHeader";
 export { default as ToggleSwitch } from "./ToggleSwitch";
 export { default as RadioButton } from "./RadioButton";
 export { default as ValueDisplay } from "./ValueDisplay";
+export { default as AdjustableValue } from "./AdjustableValue";
 export { default as Section } from "./SectionItem";
 export { MainNavItem } from "./MainNav";

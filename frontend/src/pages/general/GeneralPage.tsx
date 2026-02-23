@@ -4,6 +4,7 @@ import InternalSection from "./sections/InternalSection";
 import DriverCabin from "./sections/DriverCabin";
 import { HydraulicSystem } from "../../components/hydraulic";
 import { useGetSettings } from "../../hooks/querries/useSettingsQuerries";
+import { useUpdateSettings } from "../../hooks/mutations/useSettingsMutations";
 import {
   SectionSkeleton,
   HydraulicSkeleton,
@@ -13,6 +14,7 @@ import EmptyState from "../../components/ui/EmptyState";
 
 const GeneralPage: React.FC = () => {
   const { data: settings, isLoading, isError } = useGetSettings();
+  const { mutate: updateSettings, isPending: isUpdating } = useUpdateSettings();
 
   const general = settings?.General;
 
@@ -50,6 +52,8 @@ const GeneralPage: React.FC = () => {
           <DriverCabin
             recording={general.Back_Camera_Recording}
             adjustable={general.Adjustable}
+            onSettingChange={updateSettings}
+            isUpdating={isUpdating}
           />
         )}
       </GeneralSection>

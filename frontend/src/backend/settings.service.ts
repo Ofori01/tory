@@ -9,6 +9,10 @@ class SettingsService {
         return response.data
     }
 
+    async patchSettings(data: Partial<SettingsResponse>){
+        const response = await backendService.patch<SettingsResponse>(endpoints.settings, data)
+        return response.data
+    }
 }
 
 

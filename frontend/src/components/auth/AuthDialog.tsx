@@ -6,7 +6,7 @@ import PinInput from "../ui/PinInput";
 interface AuthDialogProps {
   pin: string;
   onPinChange: (pin: string) => void;
-  onSubmit: () => void;
+  onSubmit: (pin: string) => void;
   isVisible: boolean;
   title?: string;
   maxLength?: number;
@@ -27,7 +27,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({
 
       // Auto-submit when pin is complete
       if (newPin.length === maxLength) {
-        setTimeout(() => onSubmit(), 100);
+        setTimeout(() => onSubmit(newPin), 100);
       }
     }
   };

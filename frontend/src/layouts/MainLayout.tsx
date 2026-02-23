@@ -5,7 +5,7 @@ import Navbar from "../components/navbar/Navbar";
 
 const MainLayout: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col max-h-screen bg-background text-foreground">
       <div>
         <SystemHeader
           title="TORY CONTROLLER"
@@ -14,7 +14,7 @@ const MainLayout: React.FC = () => {
             label: "System Fault",
           }}
         />
-        <main className="mx-10 mb-2 flex-1 justify-stretch">
+        <main className="mx-10 mb-2 flex-1 h-full justify-stretch">
           <Outlet />
         </main>
 
