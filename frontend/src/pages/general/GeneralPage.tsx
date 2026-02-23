@@ -41,7 +41,10 @@ const GeneralPage: React.FC = () => {
         ) : isError || !general?.Hydraulic_System ? (
           <EmptyState message="Unable to load hydraulic system data" />
         ) : (
-          <HydraulicSystem data={general.Hydraulic_System} />
+          <HydraulicSystem
+            data={general.Hydraulic_System}
+            onSettingChange={updateSettings}
+          />
         )}
       </GeneralSection>
 

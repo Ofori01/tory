@@ -80,7 +80,7 @@ export function createInitialNodes(
         toggles: [
           {
             id: "power",
-            label: "",
+            label: "power",
             enabled: apiData ? isOn(apiData.Pump_1) : true,
           },
         ],
@@ -133,7 +133,7 @@ export function createInitialNodes(
         toggles: [
           {
             id: "power",
-            label: "",
+            label: "power",
             enabled: apiData ? isOn(apiData.Valve_1) : true,
           },
         ],
@@ -150,7 +150,7 @@ export function createInitialNodes(
         toggles: [
           {
             id: "power",
-            label: "",
+            label: "power",
             enabled: apiData ? isOn(apiData.Pump_2) : true,
           },
         ],
@@ -167,7 +167,7 @@ export function createInitialNodes(
         toggles: [
           {
             id: "power",
-            label: "",
+            label: "power",
             enabled: apiData ? isOn(apiData.Valve_2) : true,
           },
         ],

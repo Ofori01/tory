@@ -4,10 +4,10 @@
       "In_Use_Sensor": false,
       "In_Use_Indication": "OFF",
       "Int_Lights": "OFF",
-      "Ext_Lights": "OFF",
-      "Door_Lock": "ON",
+      "Ext_Lights": "ON",
+      "Door_Lock": "OFF",
       "Loudspeaker": "ON",
-      "Exhaust_Fan": "ON",
+      "Exhaust_Fan": "OFF",
       "BLOWER_Fan": "OFF",
       "Int_Temp": 22,
       "Ext_Temp": 18,
@@ -41,13 +41,13 @@
       "LTE_Connection": true,
       "Emergency_Button": true,
       "Outrigger_Limit_Switch_1": true,
-      "Outrigger_Limit_Switch_2": false,
+      "Outrigger_Limit_Switch_2": true,
       "Driver_Mode": false,
       "Toilet_Mode": false
     },
     "Adjustable": {
       "Min_BLOWER_Temp": 31,
-      "Exhaust_Fan_Delta": 21,
+      "Exhaust_Fan_Delta": 12,
       "Set_Audio_Volume": 24
     }
   },
