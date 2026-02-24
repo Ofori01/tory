@@ -2,7 +2,7 @@
   "General": {
     "Internal_External": {
       "In_Use_Sensor": false,
-      "In_Use_Indication": "OFF",
+      "In_Use_Indication": "ON",
       "Int_Lights": "OFF",
       "Ext_Lights": "ON",
       "Door_Lock": "OFF",
