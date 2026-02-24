@@ -33,6 +33,8 @@ export interface HydraulicNodeData {
   indicators?: NodeStatusIndicator[];
   /** Whether the node is currently active (powered / enabled) */
   active: boolean;
+  /** Callback fired when a toggle inside the node changes */
+  onToggleChange?: (toggleId: string, value: boolean) => void;
   /** Which handles (connection dots) this node should render */
   handles?: HandleConfig[];
 }

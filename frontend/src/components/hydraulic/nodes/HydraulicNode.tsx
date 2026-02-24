@@ -5,13 +5,13 @@ import NodeToggleRow from "./NodeToggleRow";
 import NodeIndicatorRow from "./NodeIndicatorRow";
 import { cn } from "../../../lib/utils";
 
-
 const HydraulicNode: React.FC<NodeProps> = ({ data }) => {
   const {
     label,
     toggles = [],
     indicators = [],
     active,
+    onToggleChange,
     handles = [],
   } = data as unknown as HydraulicNodeData;
 
@@ -61,6 +61,7 @@ const HydraulicNode: React.FC<NodeProps> = ({ data }) => {
               label={t.label}
               enabled={t.enabled}
               disabled={!active}
+              onChange={(val) => onToggleChange?.(t.id, val)}
             />
           ))}
         </div>
