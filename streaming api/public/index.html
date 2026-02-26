@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC CCTV Streaming Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #2563eb;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .status.offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .camera-list {
+            margin-top: 20px;
+        }
+
+        .camera-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        #statusIndicator {
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📹 WebRTC CCTV Server</h1>
+        <p class="subtitle">Signaling server for camera streaming</p>
+
+        <div class="status" id="status">
+            <span id="statusIndicator"></span>
+            <span id="statusText">Server is running</span>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Server Status</span>
+                <span class="info-value" id="serverStatus">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Uptime</span>
+                <span class="info-value" id="uptime">--</span>
+            </div>
+        </div>
+
+        <div class="camera-list">
+            <h3 style="margin-bottom: 12px;">Camera Status</h3>
+            <div class="camera-item">
+                <span>Front Camera</span>
+                <span class="status-badge" id="frontStatus">Loading...</span>
+            </div>
+            <div class="camera-item">
+                <span>Back Camera</span>
+                <span class="status-badge" id="backStatus">Loading...</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="/camera-client.html" class="btn">Open Camera Client</a>
+            <a href="/health" class="btn btn-secondary">View Health Status (JSON)</a>
+        </div>
+
+        <div class="footer">
+            <p>Use the Camera Client to turn this or other devices into cameras</p>
+            <p style="margin-top: 8px;">
+                <strong>Network URL:</strong> https://<span id="hostname">localhost</span>:9000
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Set hostname
+        document.getElementById('hostname').textContent = window.location.hostname;
+
+        // Fetch server status
+        async function updateStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+
+                document.getElementById('serverStatus').textContent = data.status.toUpperCase();
+
+                // Format uptime
+                const uptimeSeconds = Math.floor(data.uptime);
+                const hours = Math.floor(uptimeSeconds / 3600);
+                const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+                const seconds = uptimeSeconds % 60;
+                document.getElementById('uptime').textContent =
+                    `${hours}h ${minutes}m ${seconds}s`;
+
+                // Update camera status
+                const frontCamera = data.cameras.front;
+                const backCamera = data.cameras.back;
+
+                const frontStatus = document.getElementById('frontStatus');
+                const backStatus = document.getElementById('backStatus');
+
+                if (frontCamera.online) {
+                    frontStatus.textContent = `Online (${frontCamera.viewers} viewers)`;
+                    frontStatus.className = 'status-badge online';
+                } else {
+                    frontStatus.textContent = 'Offline';
+                    frontStatus.className = 'status-badge offline';
+                }
+
+                if (backCamera.online) {
+                    backStatus.textContent = `Online (${backCamera.viewers} viewers)`;
+                    backStatus.className = 'status-badge online';
+                } else {
+                    backStatus.textContent = 'Offline';
+                    backStatus.className = 'status-badge offline';
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch status:', error);
+                document.getElementById('serverStatus').textContent = 'Error';
+            }
+        }
+
+        // Update status every 2 seconds
+        updateStatus();
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+
+</html>
