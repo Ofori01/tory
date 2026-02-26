@@ -20,7 +20,7 @@ const HydraulicNode: React.FC<NodeProps> = ({ data }) => {
   return (
     <div
       className={cn(
-        "rounded-md border-2 min-w-30 transition-all duration-200",
+        "rounded-md border-2 min-w-30 transition-all duration-200 pointer-events-auto",
         active
           ? "border-orange-500 bg-card text-foreground"
           : "border-zinc-600 bg-zinc-800/60 text-zinc-500",

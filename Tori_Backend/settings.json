@@ -1,14 +1,14 @@
 {
   "General": {
     "Internal_External": {
-      "In_Use_Sensor": false,
-      "In_Use_Indication": "ON",
-      "Int_Lights": "OFF",
-      "Ext_Lights": "ON",
-      "Door_Lock": "OFF",
+      "In_Use_Sensor": true,
+      "In_Use_Indication": "OFF",
+      "Int_Lights": "ON",
+      "Ext_Lights": "OFF",
+      "Door_Lock": "ON",
       "Loudspeaker": "ON",
-      "Exhaust_Fan": "OFF",
-      "BLOWER_Fan": "OFF",
+      "Exhaust_Fan": "ON",
+      "BLOWER_Fan": "ON",
       "Int_Temp": 22,
       "Ext_Temp": 18,
       "Battery": "80%"
@@ -17,36 +17,36 @@
       "Fresh_Water": {
         "Empty": "ON"
       },
-      "Pump_1": "ON",
+      "Pump_1": "OFF",
       "Grey_Water": {
-        "Full": "ON",
-        "Empty": "ON"
+        "Full": "OFF",
+        "Empty": "OFF"
       },
-      "Pump_2": "ON",
+      "Pump_2": "OFF",
       "Toilet_System": {
         "Toilet": "ON",
         "Controller": "ON",
         "Vacuum_Pump": "OFF"
       },
       "Waste": {
-        "Full": "ON"
+        "Full": "OFF"
       },
-      "Valve_1": "ON",
-      "Valve_2": "ON"
+      "Valve_1": "OFF",
+      "Valve_2": "OFF"
     },
     "Back_Camera_Recording": {
-      "Driver_Camera_Recording": true,
+      "Driver_Camera_Recording": false,
       "Driver_Cabin": true,
-      "GPS_Connection": true,
+      "GPS_Connection": false,
       "LTE_Connection": true,
       "Emergency_Button": true,
-      "Outrigger_Limit_Switch_1": true,
+      "Outrigger_Limit_Switch_1": false,
       "Outrigger_Limit_Switch_2": true,
-      "Driver_Mode": false,
-      "Toilet_Mode": false
+      "Driver_Mode": true,
+      "Toilet_Mode": true
     },
     "Adjustable": {
-      "Min_BLOWER_Temp": 31,
+      "Min_BLOWER_Temp": 32,
       "Exhaust_Fan_Delta": 12,
       "Set_Audio_Volume": 24
     }
