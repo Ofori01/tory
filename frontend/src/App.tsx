@@ -6,8 +6,18 @@ import Login from "./pages/auth/Login";
 import GeneralPage from "./pages/general/GeneralPage";
 import CameraPage from "./pages/camera/CameraPage";
 import LogsPage from "./pages/LogsPage";
+// eslint--next-line @typescript-eslint/no-unused-vars
+import adapter from "webrtc-adapter";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
+import { endpoints } from "./backend/constants";
 
+const socket = io(endpoints.streamingApi);
 function App() {
+  useEffect(() => {
+    socket.connect();
+  }, []);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
