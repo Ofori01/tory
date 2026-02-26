@@ -14,5 +14,9 @@ export const endpoints = {
 
     recordings: "recordings/file",
 
+
+    //streaming api
+    streamingApi : "https://localhost:9000"
+
 }
 

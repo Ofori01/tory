@@ -1,7 +1,7 @@
 import fs from "fs";
 import https from "https";
 import express from "express";
-import { Socket } from "socket.io";
+import { Server } from "socket.io";
 const app = express();
 
 //secure server
@@ -19,7 +19,7 @@ secureExpressServer.listen(9000, ()=>{
     console.log("Server started successfully")
 })
 
-const io = Socket(secureExpressServer,{
+const io = new Server(secureExpressServer,{
     cors: [
         "localhost:5173",
         "localhost:5174",
