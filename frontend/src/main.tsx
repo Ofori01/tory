@@ -11,26 +11,24 @@ const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <StrictMode>
-        <App />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: "#27272a",
-              color: "#e4e4e7",
-              borderRadius: "0.5rem",
-            },
-            success: {
-              iconTheme: { primary: "#22c55e", secondary: "#fff" },
-            },
-            error: {
-              iconTheme: { primary: "#ef4444", secondary: "#fff" },
-            },
-          }}
-        />
-      </StrictMode>
+      <App />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#27272a",
+            color: "#e4e4e7",
+            borderRadius: "0.5rem",
+          },
+          success: {
+            iconTheme: { primary: "#22c55e", secondary: "#fff" },
+          },
+          error: {
+            iconTheme: { primary: "#ef4444", secondary: "#fff" },
+          },
+        }}
+      />
     </BrowserRouter>
   </QueryClientProvider>,
 );

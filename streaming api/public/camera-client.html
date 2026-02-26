@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCTV Camera Client</title>
+    <link rel="stylesheet" href="/css/camera-client.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📹 CCTV Camera Client</h1>
+            <p class="subtitle">Stream your camera to the monitoring system</p>
+        </header>
+
+        <div class="setup-section" id="setupSection">
+            <div class="card">
+                <h2>Setup Camera</h2>
+
+                <div class="form-group">
+                    <label for="cameraSelect">Select Camera Position:</label>
+                    <select id="cameraSelect" class="input-field">
+                        <option value="">-- Select Position --</option>
+                        <option value="front">Front Camera</option>
+                        <option value="back">Back Camera</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="deviceSelect">Camera Device:</label>
+                    <select id="deviceSelect" class="input-field">
+                        <option value="">Loading cameras...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resolutionSelect">Video Quality:</label>
+                    <select id="resolutionSelect" class="input-field">
+                        <option value="1280x720">HD (1280x720)</option>
+                        <option value="1920x1080">Full HD (1920x1080)</option>
+                        <option value="640x480">SD (640x480)</option>
+                    </select>
+                </div>
+
+                <button id="startBtn" class="btn btn-primary" disabled>
+                    Start Broadcasting
+                </button>
+            </div>
+
+            <div class="info-card">
+                <h3>📱 Instructions</h3>
+                <ol>
+                    <li>Select which camera position this device represents (Front or Back)</li>
+                    <li>Choose your camera device if multiple are available</li>
+                    <li>Select video quality (higher quality uses more bandwidth)</li>
+                    <li>Click "Start Broadcasting" to begin streaming</li>
+                </ol>
+                <p class="note">
+                    <strong>Note:</strong> Make sure you're on the same network as the monitoring system.
+                </p>
+            </div>
+        </div>
+
+        <div class="stream-section hidden" id="streamSection">
+            <div class="card">
+                <div class="stream-header">
+                    <h2>
+                        <span id="cameraLabel">Camera</span>
+                        <span class="status-badge" id="statusBadge">Connecting...</span>
+                    </h2>
+                    <button id="stopBtn" class="btn btn-danger">Stop Broadcasting</button>
+                </div>
+
+                <div class="video-container">
+                    <video id="localVideo" autoplay playsinline muted></video>
+                    <div class="video-overlay">
+                        <div class="recording-indicator">
+                            <span class="recording-dot"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-label">Status:</span>
+                        <span class="stat-value" id="connectionStatus">Connected</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Viewers:</span>
+                        <span class="stat-value" id="viewersCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Bitrate:</span>
+                        <span class="stat-value" id="bitrate">-- kbps</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">FPS:</span>
+                        <span class="stat-value" id="fps">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-message hidden" id="errorMessage"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/js/camera-client.js"></script>
+</body>
+
+</html>
