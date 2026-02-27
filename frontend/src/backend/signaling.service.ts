@@ -1,8 +1,3 @@
-/**
- * Signaling Service
- * Socket.IO client for communicating with the WebRTC signaling server
- */
-
 import { io, Socket } from "socket.io-client";
 
 export interface CameraMetadata {
@@ -39,9 +34,7 @@ class SignalingService {
   // Event listeners
   private eventListeners = new Map<string, Set<(data?: unknown) => void>>();
 
-  /**
-   * Connect to the signaling server
-   */
+ 
   connect(serverUrl: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.socket?.connected) {
@@ -52,7 +45,6 @@ class SignalingService {
 
       if (this.isConnecting) {
         console.log("Connection already in progress, waiting...");
-        // Wait for the existing connection attempt to complete
         let attempts = 0;
         const maxAttempts = 100; // 10 seconds
         const checkInterval = setInterval(() => {
@@ -87,7 +79,7 @@ class SignalingService {
       });
 
       this.socket.on("connect", () => {
-        console.log("✅ Connected to signaling server");
+        console.log("Connected to signaling server");
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.emit("connection:status", "connected");
@@ -95,12 +87,12 @@ class SignalingService {
       });
 
       this.socket.on("disconnect", (reason) => {
-        console.log("❌ Disconnected from signaling server:", reason);
+        console.log("Disconnected from signaling server:", reason);
         this.emit("connection:status", "disconnected");
       });
 
       this.socket.on("connect_error", (error) => {
-        console.error("❌ Connection error:", error.message);
+        console.error("Connection error:", error.message);
         this.reconnectAttempts++;
 
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
@@ -111,7 +103,7 @@ class SignalingService {
       });
 
       this.socket.on("error", (error) => {
-        console.error("❌ Socket error:", error);
+        console.error("Socket error:", error);
         this.emit("error", error);
       });
 

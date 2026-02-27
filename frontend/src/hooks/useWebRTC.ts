@@ -1,8 +1,3 @@
-/**
- * WebRTC Hook
- * Manages WebRTC peer connection for viewing camera streams
- */
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import signalingService, {
   type CameraStatus,
@@ -69,21 +64,21 @@ export const useWebRTC = ({
     const pc = new RTCPeerConnection(configuration);
 
     pc.ontrack = (event) => {
-      console.log("📹 Received remote track", event);
+      console.log("Received remote track", event);
       if (event.streams && event.streams[0]) {
-        console.log("📹 Setting remote stream", event.streams[0].id);
+        console.log("Setting remote stream", event.streams[0].id);
         setRemoteStream(event.streams[0]);
         setState("connected");
         setIsLoading(false);
       } else {
-        console.warn("⚠️ Track event received but no stream", event);
+        console.warn("Track event received but no stream", event);
       }
     };
 
     pc.onicecandidate = (event) => {
       if (event.candidate && cameraSocketIdRef.current) {
         console.log(
-          "🧊 Sending ICE candidate to camera:",
+          "Sending ICE candidate to camera:",
           event.candidate.candidate.substring(0, 50),
         );
         signalingService.sendIceCandidate(
@@ -91,12 +86,12 @@ export const useWebRTC = ({
           cameraSocketIdRef.current,
         );
       } else if (!event.candidate) {
-        console.log("🧊 ICE gathering complete for viewer");
+        console.log("ICE gathering complete for viewer");
       }
     };
 
     pc.onconnectionstatechange = () => {
-      console.log("🔌 Connection state:", pc.connectionState);
+      console.log("Connection state:", pc.connectionState);
 
       switch (pc.connectionState) {
         case "connected":
@@ -118,7 +113,7 @@ export const useWebRTC = ({
     };
 
     pc.onicecandidateerror = (event) => {
-      console.error("❌ ICE candidate error:", event);
+      console.error("ICE candidate error:", event);
     };
 
     peerConnectionRef.current = pc;
@@ -142,21 +137,21 @@ export const useWebRTC = ({
           return; // Not for this camera
         }
 
-        console.log("📨 Received offer from camera:", incomingCameraId);
-        console.log("📨 Offer details:", offer);
+        console.log("Received offer from camera:", incomingCameraId);
+        console.log("Offer details:", offer);
         cameraSocketIdRef.current = cameraSocketId;
 
         // Close existing connection if any
         if (peerConnectionRef.current) {
           console.log(
-            "🔄 Closing existing peer connection before creating new one",
+            "Closing existing peer connection before creating new one",
           );
           peerConnectionRef.current.close();
         }
 
         const pc = createPeerConnection();
 
-        console.log("🔧 Setting remote description");
+        console.log("Setting remote description");
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
 
         // Apply any queued ICE candidates now that remote description is set
@@ -165,30 +160,30 @@ export const useWebRTC = ({
         );
         if (relevantCandidates.length > 0) {
           console.log(
-            `📤 Applying ${relevantCandidates.length} queued ICE candidates`,
+            `Applying ${relevantCandidates.length} queued ICE candidates`,
           );
           for (const { candidate } of relevantCandidates) {
             try {
               await pc.addIceCandidate(new RTCIceCandidate(candidate));
             } catch (err) {
-              console.warn("⚠️ Failed to add queued ICE candidate:", err);
+              console.warn("Failed to add queued ICE candidate:", err);
             }
           }
         }
         // Clear all queued candidates
         iceCandidateQueueRef.current = [];
 
-        console.log("🔧 Creating answer");
+        console.log("Creating answer");
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
-        console.log("📤 Sending answer to camera");
+        console.log("Sending answer to camera");
         signalingService.sendAnswer(pc.localDescription!, cameraSocketId);
 
-        console.log("✅ Answer sent to camera");
+        console.log("Answer sent to camera");
       } catch (err) {
         const error = err as Error;
-        console.error("❌ Error handling offer:", error);
+        console.error("Error handling offer:", error);
         setError(error.message);
         setState("error");
         setIsLoading(false);
@@ -209,34 +204,34 @@ export const useWebRTC = ({
       const { candidate, senderSocketId } = candidateData;
 
       console.log(
-        "🧊 Received ICE candidate from:",
+        "Received ICE candidate from:",
         senderSocketId?.substring(0, 8),
         candidate.candidate?.substring(0, 50),
       );
 
       // If we don't have a camera socket ID yet, queue the candidate
       if (!cameraSocketIdRef.current) {
-        console.log("📥 Queueing ICE candidate (waiting for offer)");
+        console.log("Queueing ICE candidate (waiting for offer)");
         iceCandidateQueueRef.current.push({ candidate, senderSocketId });
         return;
       }
 
       if (senderSocketId !== cameraSocketIdRef.current) {
-        console.log("⚠️ ICE candidate from unexpected sender, ignoring");
+        console.log("ICE candidate from unexpected sender, ignoring");
         return;
       }
 
       const pc = peerConnectionRef.current;
       if (pc && pc.remoteDescription) {
-        console.log("✅ Adding ICE candidate to peer connection");
+        console.log("Adding ICE candidate to peer connection");
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
       } else {
         // Queue candidates that arrive before peer connection is ready
-        console.log("📥 Queueing ICE candidate (peer connection not ready)");
+        console.log("Queueing ICE candidate (peer connection not ready)");
         iceCandidateQueueRef.current.push({ candidate, senderSocketId });
       }
     } catch (err) {
-      console.error("❌ Error adding ICE candidate:", err);
+      console.error("Error adding ICE candidate:", err);
     }
   }, []);
 
@@ -247,7 +242,7 @@ export const useWebRTC = ({
     (data?: unknown) => {
       const disconnectData = data as { cameraId: string };
       if (disconnectData.cameraId === cameraId) {
-        console.log("📹 Camera disconnected:", cameraId);
+        console.log("Camera disconnected:", cameraId);
         setRemoteStream(null);
         setState("disconnected");
         setError("Camera disconnected");
@@ -286,7 +281,7 @@ export const useWebRTC = ({
    */
   const connect = useCallback(async () => {
     if (isConnectingRef.current) {
-      console.log("⏳ Connection already in progress");
+      console.log("Connection already in progress");
       return;
     }
 
@@ -301,7 +296,6 @@ export const useWebRTC = ({
         await signalingService.connect(signalingServerUrl);
       }
 
-      // Subscribe to signaling events (only once)
       if (!hasSetupListenersRef.current) {
         signalingService.on("webrtc:offer", handleOffer);
         signalingService.on("webrtc:ice-candidate", handleIceCandidate);
@@ -316,10 +310,10 @@ export const useWebRTC = ({
       // Request initial camera status
       signalingService.requestCameraStatus();
 
-      console.log("✅ Joined as viewer for camera:", cameraId);
+      console.log("Joined as viewer for camera:", cameraId);
     } catch (err) {
       const error = err as Error;
-      console.error("❌ Failed to connect:", error);
+      console.error("Failed to connect:", error);
       setError(error.message || "Failed to connect");
       setState("error");
       setIsLoading(false);
@@ -339,7 +333,7 @@ export const useWebRTC = ({
    * Disconnect from camera stream
    */
   const disconnect = useCallback(() => {
-    console.log("🔌 Disconnecting from camera:", cameraId);
+    console.log("Disconnecting from camera:", cameraId);
 
     // Close peer connection
     if (peerConnectionRef.current) {

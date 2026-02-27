@@ -112,7 +112,7 @@ class CameraClient {
           height: { ideal: height },
           frameRate: { ideal: 30 },
         },
-        audio: false, // CCTV typically doesn't need audio
+        audio: false, // Set false because of CCTV
       };
 
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);

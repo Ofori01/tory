@@ -20,7 +20,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
   const [isInfoOpen, setInfoOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Convert camera location to ID (front/back)
   const cameraId = cameraLocation.toLowerCase();
 
   // Use WebRTC hook
@@ -36,8 +35,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
 
   // Update video element when stream changes or video element becomes available
   useEffect(() => {
+
     console.log(
-      "🎬 useEffect triggered, videoRef:",
       !!videoRef.current,
       "remoteStream:",
       !!remoteStream,
@@ -47,7 +46,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
 
     if (videoRef.current && remoteStream) {
       console.log(
-        "🎬 Setting video srcObject, tracks:",
+        "Setting video srcObject, tracks:",
         remoteStream.getTracks().map((t) => ({
           kind: t.kind,
           enabled: t.enabled,
@@ -61,16 +60,16 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
       // Listen for track unmute events
       remoteStream.getTracks().forEach((track) => {
         track.onunmute = () => {
-          console.log("🔊 Track unmuted:", track.kind);
+          console.log("Track unmuted:", track.kind);
           videoRef.current?.play().catch((err) => {
             console.warn("Video play failed on unmute:", err);
           });
         };
         track.onmute = () => {
-          console.log("🔇 Track muted:", track.kind);
+          console.log("Track muted:", track.kind);
         };
         track.onended = () => {
-          console.log("⏹️ Track ended:", track.kind);
+          console.log("Track ended:", track.kind);
         };
       });
 
@@ -79,7 +78,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
         console.warn("Video autoplay failed:", err);
       });
     } else {
-      console.log("🎬 Cannot set srcObject - missing video or stream");
+      console.log("Cannot set srcObject - missing video or stream");
     }
   }, [remoteStream, isCameraConnected]);
 
@@ -186,15 +185,15 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
             className="w-full h-full object-cover"
             onLoadedMetadata={(e) =>
               console.log(
-                "📺 Video metadata loaded",
+                "Video metadata loaded",
                 e.currentTarget.videoWidth,
                 e.currentTarget.videoHeight,
               )
             }
-            onCanPlay={() => console.log("📺 Video can play")}
-            onPlaying={() => console.log("📺 Video is playing")}
-            onWaiting={() => console.log("📺 Video is waiting for data")}
-            onError={(e) => console.error("📺 Video error:", e)}
+            onCanPlay={() => console.log("Video can play")}
+            onPlaying={() => console.log("Video is playing")}
+            onWaiting={() => console.log("Video is waiting for data")}
+            onError={(e) => console.error("Video error:", e)}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white">

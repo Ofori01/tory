@@ -79,7 +79,7 @@ export class SignalingHandler {
       const waitingViewers = cameraManager.getViewers(cameraId);
       if (waitingViewers.length > 0) {
         logger.info(
-          `📹 Notifying camera ${cameraId} about ${waitingViewers.length} waiting viewer(s)`,
+          `Notifying camera ${cameraId} about ${waitingViewers.length} waiting viewer(s)`,
         );
 
         waitingViewers.forEach((viewerSocketId) => {
@@ -88,7 +88,7 @@ export class SignalingHandler {
             cameraId,
           });
           logger.info(
-            `📹 Sent viewer:connected to camera for viewer ${viewerSocketId.substring(0, 8)}`,
+            `Sent viewer:connected to camera for viewer ${viewerSocketId.substring(0, 8)}`,
           );
         });
       }
@@ -164,7 +164,7 @@ export class SignalingHandler {
       const { offer, targetSocketId } = data;
       const cameraId = cameraManager.getCameraId(socket.id);
 
-      logger.info(`📝 WebRTC offer received from camera ${cameraId}`, {
+      logger.info(`WebRTC offer received from camera ${cameraId}`, {
         cameraSocketId: socket.id.substring(0, 8),
         targetSocketId: targetSocketId?.substring(0, 8),
       });

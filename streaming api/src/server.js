@@ -104,7 +104,7 @@ signalingHandler.startPeriodicTasks();
 // Start server
 server.listen(config.server.port, config.server.host, () => {
   logger.info("═══════════════════════════════════════════════════════");
-  logger.info("🎥  WebRTC Signaling Server Started");
+  logger.info("  WebRTC Signaling Server Started");
   logger.info("═══════════════════════════════════════════════════════");
   logger.info(`  Environment: ${config.server.environment}`);
   logger.info(`  Host: ${config.server.host}`);
@@ -131,7 +131,6 @@ const shutdown = () => {
     process.exit(0);
   });
 
-  // Force shutdown after 10 seconds
   setTimeout(() => {
     logger.error("Forced shutdown after timeout");
     process.exit(1);
@@ -141,7 +140,6 @@ const shutdown = () => {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-// Handle uncaught errors
 process.on("uncaughtException", (error) => {
   logger.error("Uncaught exception", {
     error: error.message,

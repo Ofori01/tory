@@ -1,8 +1,3 @@
-/**
- * Configuration for the Streaming API
- * Centralized configuration management for the WebRTC signaling server
- */
-
 export const config = {
   // Server configuration
   server: {
