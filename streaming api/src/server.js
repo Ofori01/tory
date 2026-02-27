@@ -37,13 +37,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API endpoint to get camera status
 app.get("/api/cameras/status", (req, res) => {
   const status = cameraManager.getAllCamerasStatus();
   res.json(status);
 });
 
-// Create HTTPS server
 let server;
 try {
   const key = fs.readFileSync(config.ssl.keyPath);
@@ -59,7 +57,6 @@ try {
   server = http.createServer(app);
 }
 
-// Initialize Socket.IO
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
@@ -69,7 +66,6 @@ const io = new Server(server, {
       // Check if origin matches any allowed pattern
       const isAllowed = config.cors.origins.some((pattern) => {
         if (pattern instanceof RegExp) {
-          // Pattern is a RegExp
           return pattern.test(origin);
         }
         // Pattern is a string - convert to regex
