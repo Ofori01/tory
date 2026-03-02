@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import type { Recording } from '../../types/logs';
-import { X, Play, Pause, RotateCcw, RotateCw, Sun, VideoOff } from 'lucide-react';
-import recordingsService from '../../backend/recordings.service';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import type { Recording } from "../../types/logs";
+import { X, Play, Pause, RotateCcw, RotateCw, VideoOff } from "lucide-react";
+import recordingsService from "../../backend/recordings.service";
 
 const SEGMENT_SECONDS = 10;
 
@@ -10,10 +10,15 @@ interface RecordingModalProps {
   onClose: () => void;
 }
 
-const RecordingModal: React.FC<RecordingModalProps> = ({ recording, onClose }) => {
+const RecordingModal: React.FC<RecordingModalProps> = ({
+  recording,
+  onClose,
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [currentTimestamp, setCurrentTimestamp] = useState<Date>(recording.createdAt);
+  const [currentTimestamp, setCurrentTimestamp] = useState<Date>(
+    recording.createdAt,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.7);
@@ -22,12 +27,72 @@ const RecordingModal: React.FC<RecordingModalProps> = ({ recording, onClose }) =
   const [notFound, setNotFound] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sync volume to video element whenever it changes
+  const src = recordingsService.getRecordingUrl(
+    recording.camera,
+    currentTimestamp,
+  );
+
+  // Attach media events directly on the element for reliability —
+  // React's synthetic onError does not reliably fire for all video
+  // network/decode failures (404s, unsupported codecs, etc.).
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.volume = volume;
+    const video = videoRef.current;
+    console.log("video available:", videoRef.current)
+    if (!video) return;
+
+    const onLoaded = () => {
+      setIsLoading(false);
+      setNotFound(false);
+      setDuration(video.duration);
+      video.volume = volume;
+      video.play().catch(() => {
+        /* autoplay blocked */
+      });
+    };
+
+    const onError = () => {
+      setIsLoading(false);
+      setNotFound(true);
+      setIsPlaying(false);
+    };
+
+    const onTimeUpdate = () => {
+      if (video.duration) {
+        setCurrentTime(video.currentTime);
+        setProgress(video.currentTime / video.duration);
+      }
+    };
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+
+    video.addEventListener("canplay", onLoaded);
+    video.addEventListener("error", onError);
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    video.addEventListener("ended", onEnded);
+
+    // Handle race condition: canplay may have already fired before we attached
+    // the listener (e.g. cached response). readyState >= 3 means enough data.
+    if (video.readyState >= 3) {
+      onLoaded();
+    } else if (video.error) {
+      onError();
     }
-  }, [volume]);
+
+    return () => {
+      video.removeEventListener("canplay", onLoaded);
+      video.removeEventListener("error", onError);
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+      video.removeEventListener("ended", onEnded);
+    };
+    // Re-attach whenever the src (segment) changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
 
   const loadSegment = useCallback((timestamp: Date) => {
     setNotFound(false);
@@ -47,58 +112,39 @@ const RecordingModal: React.FC<RecordingModalProps> = ({ recording, onClose }) =
     loadSegment(new Date(currentTimestamp.getTime() + SEGMENT_SECONDS * 1000));
   };
 
-  const handleLoadedData = () => {
-    setIsLoading(false);
-    setNotFound(false);
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration);
-      videoRef.current.volume = volume;
-      videoRef.current.play();
-    }
-  };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setNotFound(true);
-    setIsPlaying(false);
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current && videoRef.current.duration) {
-      setCurrentTime(videoRef.current.currentTime);
-      setProgress(videoRef.current.currentTime / videoRef.current.duration);
-    }
-  };
-
   const handlePlayPause = () => {
     if (!videoRef.current || notFound) return;
     if (isPlaying) {
       videoRef.current.pause();
     } else {
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
     }
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!videoRef.current || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const fraction = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width),
+    );
     videoRef.current.currentTime = fraction * duration;
     setProgress(fraction);
   };
 
   const handleVolumeClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const fraction = Math.max(0, Math.min(1, 1 - (e.clientY - rect.top) / rect.height));
+    const fraction = Math.max(
+      0,
+      Math.min(1, 1 - (e.clientY - rect.top) / rect.height),
+    );
     setVolume(fraction);
   };
 
   const formatTime = (seconds: number) => {
     const s = Math.floor(seconds);
-    return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+    return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
   };
-
-  const src = recordingsService.getRecordingUrl(recording.camera, currentTimestamp);
 
   return (
     <div
@@ -114,19 +160,12 @@ const RecordingModal: React.FC<RecordingModalProps> = ({ recording, onClose }) =
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative bg-black aspect-video">
-
           {/* Real video element — key forces remount on segment change */}
           <video
             ref={videoRef}
             key={src}
             src={src}
             className="w-full h-full object-contain"
-            onLoadedData={handleLoadedData}
-            onError={handleError}
-            onTimeUpdate={handleTimeUpdate}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
             preload="auto"
           />
 
@@ -155,85 +194,94 @@ const RecordingModal: React.FC<RecordingModalProps> = ({ recording, onClose }) =
             <X size={18} />
           </button>
 
-          {/* Brightness icon */}
-          <button className="absolute top-4 left-4 text-white/80 hover:text-white transition-colors cursor-pointer">
-            <Sun size={20} />
-          </button>
+          {/* Controls — only visible on hover */}
+          <div className="absolute inset-0 flex flex-col justify-between opacity-0 hover:opacity-100 transition-opacity duration-200">
+            {/* Volume Slider (vertical, left side — centred vertically) */}
+            <div className="flex-1 flex items-center">
+              <div className="ml-4">
+                <div
+                  className="w-1 h-24 bg-white/30 rounded-full relative cursor-pointer"
+                  onClick={handleVolumeClick}
+                >
+                  <div
+                    className="absolute bottom-0 left-0 w-full bg-white rounded-full transition-all"
+                    style={{ height: `${volume * 100}%` }}
+                  />
+                  <div
+                    className="absolute left-2 -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow-md"
+                    style={{
+                      bottom: `${volume * 100}%`,
+                      transform: "translate(-50%, 50%)",
+                    }}
+                  />
+                </div>
+              </div>
 
-          {/* Volume Slider (vertical, left side) */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col items-center">
-            <div
-              className="w-1 h-24 bg-white/30 rounded-full relative cursor-pointer"
-              onClick={handleVolumeClick}
-            >
-              <div
-                className="absolute bottom-0 left-0 w-full bg-white rounded-full transition-all"
-                style={{ height: `${volume * 100}%` }}
-              />
-              <div
-                className="absolute left-2 -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow-md"
-                style={{ bottom: `${volume * 100}%`, transform: 'translate(-50%, 50%)' }}
-              />
+              {/* Centre playback buttons */}
+              <div className="flex-1 flex items-center justify-center gap-10">
+                <button
+                  className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                  onClick={handlePrevSegment}
+                  title="Previous segment"
+                >
+                  <div className="relative">
+                    <RotateCcw size={28} />
+                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
+                      10
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={handlePlayPause}
+                  disabled={notFound}
+                  className="text-white hover:scale-110 transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isPlaying ? (
+                    <Pause size={44} strokeWidth={2.5} />
+                  ) : (
+                    <Play size={44} strokeWidth={2.5} className="ml-1" />
+                  )}
+                </button>
+
+                <button
+                  className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                  onClick={handleNextSegment}
+                  title="Next segment"
+                >
+                  <div className="relative">
+                    <RotateCw size={28} />
+                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
+                      10
+                    </span>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Center Playback Controls */}
-          <div className="absolute inset-0 flex items-center justify-center gap-10">
-            {/* Prev 10s segment */}
-            <button
-              className="text-white/80 hover:text-white transition-colors cursor-pointer"
-              onClick={handlePrevSegment}
-              title="Previous segment"
-            >
-              <div className="relative">
-                <RotateCcw size={28} />
-                <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">10</span>
-              </div>
-            </button>
-
-            {/* Play / Pause */}
-            <button
-              onClick={handlePlayPause}
-              disabled={notFound}
-              className="text-white hover:scale-110 transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {isPlaying
-                ? <Pause size={44} strokeWidth={2.5} />
-                : <Play size={44} strokeWidth={2.5} className="ml-1" />}
-            </button>
-
-            {/* Next 10s segment */}
-            <button
-              className="text-white/80 hover:text-white transition-colors cursor-pointer"
-              onClick={handleNextSegment}
-              title="Next segment"
-            >
-              <div className="relative">
-                <RotateCw size={28} />
-                <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">10</span>
-              </div>
-            </button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
-            <div className="flex items-center gap-2">
-              <div
-                className="flex-1 h-1 bg-white/30 rounded-full cursor-pointer relative group"
-                onClick={handleProgressClick}
-              >
+            {/* Progress Bar */}
+            <div className="px-3 pb-3">
+              <div className="flex items-center gap-2">
                 <div
-                  className="h-full bg-red-500 rounded-full"
-                  style={{ width: `${progress * 100}%` }}
-                />
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ left: `${progress * 100}%`, transform: 'translate(-50%, -50%)' }}
-                />
+                  className="flex-1 h-1 bg-white/30 rounded-full cursor-pointer relative group"
+                  onClick={handleProgressClick}
+                >
+                  <div
+                    className="h-full bg-red-500 rounded-full"
+                    style={{ width: `${progress * 100}%` }}
+                  />
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{
+                      left: `${progress * 100}%`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                </div>
+                <span className="text-white/80 text-xs font-mono min-w-18 text-right">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
               </div>
-              <span className="text-white/80 text-xs font-mono min-w-18 text-right">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
             </div>
           </div>
         </div>

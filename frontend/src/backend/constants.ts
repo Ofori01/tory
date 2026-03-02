@@ -1,24 +1,19 @@
-
-
 export const endpoints = {
-    baseUrl: "http://localhost:8000",
+  baseUrl: "http://localhost:8000",
 
-    //settings
-    settings: "/settings",
+  //settings
+  settings: "/settings",
 
-    // logs
-    logs: "/logs",
+  // logs
+  logs: "/logs",
 
-    // camera
-    camera: "/camera",
+  // camera
+  camera: "/camera",
 
-    // recordings
-    recordings: "/recordings",
-    recordingsFile: "/recordings/file",
+  // recordings
+  recordings: "/recordings",
+  recordingsFile: "/recordings/file",
 
-
-    //streaming api
-    streamingApi : "https://localhost:9000"
-
-}
-
+  //streaming api
+  streamingApi: "https://localhost:9000",
+};

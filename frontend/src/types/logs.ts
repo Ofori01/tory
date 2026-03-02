@@ -1,5 +1,5 @@
-export type LogLevel = 'INFO' | 'ERROR' | 'WARNING';
-export type LogFilter = LogLevel | 'RECORDINGS';
+export type LogLevel = "INFO" | "ERROR" | "WARNING";
+export type LogFilter = LogLevel | "RECORDINGS";
 
 export interface LogEntry {
   id: string;
