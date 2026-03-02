@@ -7,6 +7,48 @@ from app.core.logger import setup_logger
 router = APIRouter()
 logger = setup_logger()
 
+ALLOWED_CAMERAS = ["front", "back"]
+
+@router.get("/recordings")
+async def list_recordings(camera: str = "front"):
+    camera = camera.lower()
+    if camera not in ALLOWED_CAMERAS:
+        raise HTTPException(status_code=400, detail=f"Invalid camera. Must be one of: {ALLOWED_CAMERAS}")
+
+    base_folder = f"recordings/{camera}"
+    logger.info(f"GET /recordings?camera={camera}")
+
+    if not os.path.exists(base_folder):
+        return []
+
+    results = []
+    for date_dir in sorted(os.listdir(base_folder), reverse=True):
+        date_path = os.path.join(base_folder, date_dir)
+        if not os.path.isdir(date_path):
+            continue
+        try:
+            datetime.strptime(date_dir, "%Y-%m-%d")
+        except ValueError:
+            continue
+        for filename in sorted(os.listdir(date_path), reverse=True):
+            if not filename.endswith(".mp4"):
+                continue
+            time_str = filename[:-4]  # strip .mp4
+            try:
+                dt = datetime.strptime(f"{date_dir} {time_str}", "%Y-%m-%d %H-%M-%S")
+            except ValueError:
+                continue
+            rec_id = f"{camera}_{date_dir}T{time_str}"
+            results.append({
+                "id": rec_id,
+                "camera": camera,
+                "timestamp": dt.isoformat(),
+            })
+
+    logger.info(f"Returning {len(results)} recordings for camera={camera}")
+    return results
+
+
 @router.get("/camera/{position}")
 async def get_camera_stream(position: str):
     logger.info(f"GET /camera/{position} called")
