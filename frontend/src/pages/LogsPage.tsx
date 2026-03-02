@@ -5,56 +5,8 @@ import LogsList from "../components/logs/LogsList";
 import RecordingsList from "../components/logs/RecordingsList";
 import SystemInfoModal from "../components/modals/SystemInfoModal";
 import RecordingModal from "../components/modals/RecordingModal";
-import thumbnail from "../assets/camera_feed.png";
 import { useLogs, type LogStreamLevel } from "../hooks/useLogs";
-
-// ── Mock Recordings (recordings API not yet implemented) ───────────────
-
-const generateMockRecordings = (): Recording[] => {
-  const now = Date.now();
-  return [
-    {
-      id: "rec-1",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 5 * 60 * 1000),
-    }, // 5 mins ago
-    {
-      id: "rec-2",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 24 * 60 * 60 * 1000),
-    }, // 1 day ago
-    {
-      id: "rec-3",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
-    }, // 2 days ago
-    {
-      id: "rec-4",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 3 * 24 * 60 * 60 * 1000),
-    }, // 3 days ago
-    {
-      id: "rec-5",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000),
-    }, // 4 days ago
-    {
-      id: "rec-6",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000),
-    }, // 5 days ago
-    {
-      id: "rec-7",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 7 * 24 * 60 * 60 * 1000),
-    }, // 1 week ago
-    {
-      id: "rec-8",
-      thumbnailUrl: thumbnail,
-      createdAt: new Date(now - 14 * 24 * 60 * 60 * 1000),
-    }, // 2 weeks ago
-  ];
-};
+import { useGetRecordings } from "../hooks/querries/useRecordingsQuery";
 
 // ── Page Component ─────────────────────────────────────────────────────
 
@@ -62,11 +14,19 @@ const LogsPage: React.FC = () => {
   const [showAll, setShowAll] = useState<boolean>(true);
   const [selectedFilter, setSelectedFilter] = useState<LogFilter | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [recordings, setRecordings] = useState<Recording[]>(
-    generateMockRecordings,
-  );
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const [selectedRecording, setSelectedRecording] = useState<Recording | null>(
     null,
+  );
+
+  // Fetch real recordings from backend
+  const { data: fetchedRecordings = [], isLoading: recordingsLoading } =
+    useGetRecordings("front");
+
+  // Apply local deletes on top of server data
+  const recordings = useMemo(
+    () => fetchedRecordings.filter((r) => !deletedIds.has(r.id)),
+    [fetchedRecordings, deletedIds],
   );
 
   const isRecordingsView = !showAll && selectedFilter === "RECORDINGS";
@@ -109,7 +69,7 @@ const LogsPage: React.FC = () => {
   };
 
   const handleDeleteRecording = useCallback((id: string) => {
-    setRecordings((prev) => prev.filter((r) => r.id !== id));
+    setDeletedIds((prev) => new Set([...prev, id]));
   }, []);
 
   return (
@@ -151,6 +111,7 @@ const LogsPage: React.FC = () => {
         {isRecordingsView ? (
           <RecordingsList
             recordings={recordings}
+            isLoading={recordingsLoading}
             onDelete={handleDeleteRecording}
             onClick={(rec) => setSelectedRecording(rec)}
             className="flex-1"

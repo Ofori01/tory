@@ -12,7 +12,9 @@ export const endpoints = {
     // camera
     camera: "/camera",
 
-    recordings: "recordings/file",
+    // recordings
+    recordings: "/recordings",
+    recordingsFile: "/recordings/file",
 
 
     //streaming api

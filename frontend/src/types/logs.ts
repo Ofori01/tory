@@ -11,6 +11,7 @@ export interface LogEntry {
 
 export interface Recording {
   id: string;
-  thumbnailUrl: string;
+  camera: string;
+  thumbnailUrl?: string;
   createdAt: Date;
 }
