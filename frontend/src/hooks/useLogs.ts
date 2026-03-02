@@ -3,7 +3,11 @@ import logsService from "../backend/logs.service";
 import type { LogEntry } from "../types/logs";
 
 export type LogStreamLevel = "INFO" | "ERROR";
-export type LogStreamStatus = "connecting" | "connected" | "disconnected" | "error";
+export type LogStreamStatus =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "error";
 
 interface UseLogsOptions {
   /** "INFO" streams all logs; "ERROR" streams warnings and errors only. Defaults to "INFO". */
@@ -67,8 +71,11 @@ export const useLogs = ({
           setStatus("error");
           setError("Lost connection to log stream. Reconnecting…");
           // Reconnect after 3 s via the stable ref
-          reconnectTimerRef.current = setTimeout(() => connectRef.current(), 3000);
-        }
+          reconnectTimerRef.current = setTimeout(
+            () => connectRef.current(),
+            3000,
+          );
+        },
       );
 
       source.onopen = () => {
