@@ -1,61 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import type { LogEntry, LogFilter, Recording } from '../types/logs';
+import type { LogFilter, Recording } from '../types/logs';
 import LogsFilterBar from '../components/logs/LogsFilterBar';
 import LogsList from '../components/logs/LogsList';
 import RecordingsList from '../components/logs/RecordingsList';
 import SystemInfoModal from '../components/modals/SystemInfoModal';
 import RecordingModal from '../components/modals/RecordingModal';
-import thumbnail from '../assets/camera_feed.png'
+import thumbnail from '../assets/camera_feed.png';
+import { useLogs, type LogStreamLevel } from '../hooks/useLogs';
 
-// ── Mock Data ──────────────────────────────────────────────────────────
-
-const formatDate = (d: Date) => {
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-};
-
-const generateMockLogs = (): LogEntry[] => {
-  const logs: LogEntry[] = [];
-
-  for (let i = 0; i < 5; i++) {
-    logs.push({
-      id: `init-${i}`,
-      timestamp: formatDate(new Date(2025, 3, 3, 8, 0, 35)),
-      level: 'INFO',
-      message: 'All cameras connected successfully',
-    });
-  }
-
-  for (let i = 0; i < 3; i++) {
-    logs.push({
-      id: `err-${i}`,
-      timestamp: formatDate(new Date(2025, 3, 3, 14, 45, 12)),
-      level: 'ERROR',
-      message: 'Camera 15 (Warehouse) - Video stream corruption detected',
-      details: 'Failed: WebRTC negotiation timeout',
-    });
-  }
-
-  for (let i = 0; i < 3; i++) {
-    logs.push({
-      id: `mid-${i}`,
-      timestamp: formatDate(new Date(2025, 3, 3, 8, 0, 35)),
-      level: 'INFO',
-      message: 'All cameras connected successfully',
-    });
-  }
-
-  for (let i = 0; i < 4; i++) {
-    logs.push({
-      id: `warn-${i}`,
-      timestamp: formatDate(new Date(2025, 3, 3, 10, 15, 46)),
-      level: 'WARNING',
-      message: 'Camera 7 (Hallway 1) - Connection stability issues detected',
-    });
-  }
-
-  return logs;
-};
+// ── Mock Recordings (recordings API not yet implemented) ───────────────
 
 const generateMockRecordings = (): Recording[] => {
   const now = Date.now();
@@ -71,8 +24,6 @@ const generateMockRecordings = (): Recording[] => {
   ];
 };
 
-const MOCK_LOGS = generateMockLogs();
-
 // ── Page Component ─────────────────────────────────────────────────────
 
 const LogsPage: React.FC = () => {
@@ -84,14 +35,25 @@ const LogsPage: React.FC = () => {
 
   const isRecordingsView = !showAll && selectedFilter === 'RECORDINGS';
 
-  // Filter Logic
+  // Map the UI filter to the SSE stream level.
+  // The backend supports "INFO" (all logs) and "ERROR" (warnings + errors).
+  // We fetch the broadest needed set and narrow client-side.
+  const streamLevel: LogStreamLevel = useMemo(() => {
+    if (showAll || selectedFilter === 'INFO' || selectedFilter == null) return 'INFO';
+    // WARNING and ERROR → request the ERROR stream (includes both)
+    return 'ERROR';
+  }, [showAll, selectedFilter]);
+
+  const { logs: streamedLogs, status: streamStatus } = useLogs({ level: streamLevel });
+
+  // Client-side filter on top of the stream
   const filteredLogs = useMemo(() => {
-    if (showAll) return MOCK_LOGS;
+    if (showAll) return streamedLogs;
     if (selectedFilter && selectedFilter !== 'RECORDINGS') {
-      return MOCK_LOGS.filter((log) => log.level === selectedFilter);
+      return streamedLogs.filter((log) => log.level === selectedFilter);
     }
     return [];
-  }, [showAll, selectedFilter]);
+  }, [showAll, selectedFilter, streamedLogs]);
 
   const handleShowAllChange = (value: boolean) => {
     setShowAll(value);
@@ -114,9 +76,26 @@ const LogsPage: React.FC = () => {
   return (
     <div className="h-full flex flex-col relative">
       <div className="flex-1 bg-[#121212] border border-gray-800 rounded-lg p-4 flex flex-col overflow-hidden relative">
-        {/* Title inside the panel */}
-        <div className="font-heading text-lg mb-2 text-gray-200 tracking-wider">
-          Logs
+        {/* Title + stream status */}
+        <div className="flex items-center gap-2 mb-2">
+          <span className="font-heading text-lg text-gray-200 tracking-wider">Logs</span>
+          {!isRecordingsView && (
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                streamStatus === 'connected'
+                  ? 'bg-green-900/50 text-green-400'
+                  : streamStatus === 'connecting'
+                  ? 'bg-yellow-900/50 text-yellow-400'
+                  : 'bg-red-900/50 text-red-400'
+              }`}
+            >
+              {streamStatus === 'connected'
+                ? 'Live'
+                : streamStatus === 'connecting'
+                ? 'Connecting…'
+                : 'Disconnected'}
+            </span>
+          )}
         </div>
 
         <LogsFilterBar
