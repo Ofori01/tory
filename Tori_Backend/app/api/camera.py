@@ -1,8 +1,24 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from datetime import datetime, timedelta
+import asyncio
 import os
 from app.core.logger import setup_logger
+
+TRANSCODE_WAIT_SECONDS = 15  # max time to wait for an in-progress transcode
+
+
+async def _wait_for_transcode(filepath: str) -> bool:
+    """If a .tmp.mp4 file exists the segment is still being transcoded.
+    Poll until the tmp file disappears (transcode done) or we time out.
+    Returns True once the file is ready, False on timeout.
+    """
+    tmp = filepath + ".tmp.mp4"
+    waited = 0.0
+    while os.path.exists(tmp) and waited < TRANSCODE_WAIT_SECONDS:
+        await asyncio.sleep(0.5)
+        waited += 0.5
+    return not os.path.exists(tmp)
 
 router = APIRouter()
 logger = setup_logger()
@@ -80,6 +96,7 @@ async def get_recording_file(camera: str, timestamp: str):
     # Try exact match first
     exact_file = f"{date_folder}/{dt.strftime('%H-%M-%S')}.mp4"
     if os.path.exists(exact_file):
+        await _wait_for_transcode(exact_file)
         logger.info(f"Returning exact recording: {exact_file}")
         return FileResponse(exact_file, media_type="video/mp4")
 
@@ -88,6 +105,7 @@ async def get_recording_file(camera: str, timestamp: str):
         fallback_time = dt - timedelta(seconds=offset)
         fallback_file = f"{date_folder}/{fallback_time.strftime('%H-%M-%S')}.mp4"
         if os.path.exists(fallback_file):
+            await _wait_for_transcode(fallback_file)
             logger.info(f"Returning fallback recording: {fallback_file}")
             return FileResponse(fallback_file, media_type="video/mp4")
 

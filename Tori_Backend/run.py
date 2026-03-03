@@ -22,5 +22,12 @@ import uvicorn
 
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="localhost", port=8000, reload=False)
+    uvicorn.run(
+        "app.main:app",
+        host="localhost",
+        port=8000,
+        reload=False,
+        ssl_keyfile="../frontend/cert/cert.key",
+        ssl_certfile="../frontend/cert/cert.crt",
+    )
 
