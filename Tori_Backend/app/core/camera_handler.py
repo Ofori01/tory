@@ -28,8 +28,15 @@ async def start_recording_loop(logger):
                 await asyncio.sleep(5)
                 continue
 
-            height, width = test_frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*'avc1')
+            # Hardware encoders (especially on Pi) often require dimensions to be multiples of 16
+            h, w = test_frame.shape[:2]
+            width = (w // 16) * 16
+            height = (h // 16) * 16
+            logger.info(f"Target recording resolution: {width}x{height}")
+
+            # X264 often has better fallback to software encoding than avc1
+            fourcc_h264 = cv2.VideoWriter_fourcc(*'X264')
+            fourcc_fallback = cv2.VideoWriter_fourcc(*'mp4v')
 
             while True:
                 now = datetime.now()
@@ -40,6 +47,7 @@ async def start_recording_loop(logger):
                 filename = f"{folder}/{time_str}.mp4"
 
                 out = None
+                current_fourcc = fourcc_h264
                 frame_written = False
                 start_time = datetime.now()
 
@@ -51,7 +59,15 @@ async def start_recording_loop(logger):
                         continue
 
                     if out is None:
-                        out = cv2.VideoWriter(filename, fourcc, FPS, (width, height))
+                        out = cv2.VideoWriter(filename, current_fourcc, FPS, (width, height))
+                        if not out.isOpened():
+                            logger.error(f"H.264 encoder failed to open. Falling back to mp4v.")
+                            current_fourcc = fourcc_fallback
+                            out = cv2.VideoWriter(filename, current_fourcc, FPS, (width, height))
+
+                    # Ensure frame matches the dimensions the VideoWriter was initialized with
+                    if frame.shape[1] != width or frame.shape[0] != height:
+                        frame = cv2.resize(frame, (width, height))
 
                     out.write(frame)
                     frame_written = True
