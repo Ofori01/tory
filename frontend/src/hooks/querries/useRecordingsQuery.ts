@@ -19,6 +19,9 @@ export const useGetRecordings = (camera = "front") => {
         createdAt: new Date(dto.timestamp),
       }));
     },
+    staleTime: 30_000, // treat list as fresh for 30 s
+    refetchOnMount: true, // always refetch when the recordings view is opened
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {

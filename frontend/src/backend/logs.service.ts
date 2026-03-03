@@ -27,19 +27,11 @@ export function parseLogMessage(raw: string): LogEntry | null {
 }
 
 class LogsService {
-  /**
-   * Returns the EventSource URL for the SSE log stream.
-   * level "INFO"  → all logs
-   * level "ERROR" → warnings and errors only (backend behaviour)
-   */
+  
   getStreamUrl(level: "INFO" | "ERROR" = "INFO"): string {
     return `${endpoints.baseUrl}${endpoints.logs}?level=${level}`;
   }
 
-  /**
-   * Opens a native EventSource to the logs SSE endpoint.
-   * Returns the EventSource instance so the caller can close it.
-   */
   openStream(
     level: "INFO" | "ERROR",
     onMessage: (entry: LogEntry) => void,

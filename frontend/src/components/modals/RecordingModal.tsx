@@ -37,7 +37,7 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
   // network/decode failures (404s, unsupported codecs, etc.).
   useEffect(() => {
     const video = videoRef.current;
-    console.log("video available:", videoRef.current)
+    console.log("video available:", videoRef.current, src);
     if (!video) return;
 
     const onLoaded = () => {
@@ -54,6 +54,12 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
       setIsLoading(false);
       setNotFound(true);
       setIsPlaying(false);
+      if (video.error) {
+        console.error(
+          `Video error: code=${video.error.code}, message="${video.error.message}"`,
+          `src=${video.src}`,
+        );
+      }
     };
 
     const onTimeUpdate = () => {

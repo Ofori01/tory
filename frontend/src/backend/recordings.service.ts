@@ -11,12 +11,9 @@ class RecordingsService {
     return response.data;
   }
 
-  /**
-   * Returns a URL string suitable for use as a <video src>.
-   * The browser handles the HTTP request natively (supports range requests for seeking).
-   */
   getRecordingUrl(camera: string, timestamp: Date): string {
-    const iso = timestamp.toISOString().replace("Z", ""); // backend expects local ISO, not UTC Z
+    const p = (n: number) => String(n).padStart(2, "0");
+    const iso = `${timestamp.getFullYear()}-${p(timestamp.getMonth() + 1)}-${p(timestamp.getDate())}T${p(timestamp.getHours())}:${p(timestamp.getMinutes())}:${p(timestamp.getSeconds())}`;
     return `${endpoints.baseUrl}${endpoints.recordingsFile}?camera=${encodeURIComponent(camera)}&timestamp=${encodeURIComponent(iso)}`;
   }
 }
