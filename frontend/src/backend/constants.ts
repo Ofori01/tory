@@ -1,5 +1,5 @@
 export const endpoints = {
-  baseUrl: "http://localhost:8000",
+  baseUrl: "/api",
 
   //settings
   settings: "/settings",

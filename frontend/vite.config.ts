@@ -11,5 +11,12 @@ export default defineConfig({
       key: fs.readFileSync("./cert/cert.key"),
       cert: fs.readFileSync("./cert/cert.crt"),
     },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });
