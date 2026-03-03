@@ -29,7 +29,7 @@ async def start_recording_loop(logger):
                 continue
 
             height, width = test_frame.shape[:2]
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*'avc1')
 
             while True:
                 now = datetime.now()

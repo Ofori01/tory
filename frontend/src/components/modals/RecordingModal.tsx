@@ -117,7 +117,7 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
     if (isPlaying) {
       videoRef.current.pause();
     } else {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
   };
 
@@ -167,6 +167,8 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
             src={src}
             className="w-full h-full object-contain"
             preload="auto"
+            playsInline
+            muted
           />
 
           {/* Loading spinner */}
