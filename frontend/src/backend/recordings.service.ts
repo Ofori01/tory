@@ -14,7 +14,9 @@ class RecordingsService {
   getRecordingUrl(camera: string, timestamp: Date): string {
     const p = (n: number) => String(n).padStart(2, "0");
     const iso = `${timestamp.getFullYear()}-${p(timestamp.getMonth() + 1)}-${p(timestamp.getDate())}T${p(timestamp.getHours())}:${p(timestamp.getMinutes())}:${p(timestamp.getSeconds())}`;
-    return `${endpoints.baseUrl}${endpoints.recordingsFile}?camera=${encodeURIComponent(camera)}&timestamp=${encodeURIComponent(iso)}`;
+    // Use mediaUrl (direct HTTPS to backend) to bypass the Vite proxy.
+    // The proxy buffers range requests which causes choppy video playback.
+    return `${endpoints.mediaUrl}${endpoints.recordingsFile}?camera=${encodeURIComponent(camera)}&timestamp=${encodeURIComponent(iso)}`;
   }
 }
 

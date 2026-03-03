@@ -26,6 +26,7 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [notFound, setNotFound] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const retryCountRef = useRef(0);
 
   const src = recordingsService.getRecordingUrl(
     recording.camera,
@@ -51,15 +52,25 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
     };
 
     const onError = () => {
-      setIsLoading(false);
-      setNotFound(true);
-      setIsPlaying(false);
       if (video.error) {
         console.error(
           `Video error: code=${video.error.code}, message="${video.error.message}"`,
           `src=${video.src}`,
         );
       }
+      // Retry once after 2 s — the file may still be mid-transcode
+      if (retryCountRef.current < 1) {
+        retryCountRef.current += 1;
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.load();
+          }
+        }, 2000);
+        return;
+      }
+      setIsLoading(false);
+      setNotFound(true);
+      setIsPlaying(false);
     };
 
     const onTimeUpdate = () => {
@@ -80,8 +91,6 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
     video.addEventListener("pause", onPause);
     video.addEventListener("ended", onEnded);
 
-    // Handle race condition: canplay may have already fired before we attached
-    // the listener (e.g. cached response). readyState >= 3 means enough data.
     if (video.readyState >= 3) {
       onLoaded();
     } else if (video.error) {
@@ -96,6 +105,9 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
       video.removeEventListener("pause", onPause);
       video.removeEventListener("ended", onEnded);
     };
+    // Reset retry counter whenever the segment changes
+    retryCountRef.current = 0;
+
     // Re-attach whenever the src (segment) changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
@@ -224,45 +236,47 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
               </div>
 
               {/* Centre playback buttons */}
-              <div className="flex-1 flex items-center justify-center gap-10">
-                <button
-                  className="text-white/80 hover:text-white transition-colors cursor-pointer"
-                  onClick={handlePrevSegment}
-                  title="Previous segment"
-                >
-                  <div className="relative">
-                    <RotateCcw size={28} />
-                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
-                      10
-                    </span>
-                  </div>
-                </button>
+              {!isLoading && (
+                <div className="flex-1 flex items-center justify-center gap-10 transition-all ease-in-out duration-300">
+                  <button
+                    className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                    onClick={handlePrevSegment}
+                    title="Previous segment"
+                  >
+                    <div className="relative">
+                      <RotateCcw size={28} />
+                      <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
+                        10
+                      </span>
+                    </div>
+                  </button>
 
-                <button
-                  onClick={handlePlayPause}
-                  disabled={notFound}
-                  className="text-white hover:scale-110 transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {isPlaying ? (
-                    <Pause size={44} strokeWidth={2.5} />
-                  ) : (
-                    <Play size={44} strokeWidth={2.5} className="ml-1" />
-                  )}
-                </button>
+                  <button
+                    onClick={handlePlayPause}
+                    disabled={notFound}
+                    className="text-white hover:scale-110 transition-transform cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {isPlaying ? (
+                      <Pause size={44} strokeWidth={2.5} />
+                    ) : (
+                      <Play size={44} strokeWidth={2.5} className="ml-1" />
+                    )}
+                  </button>
 
-                <button
-                  className="text-white/80 hover:text-white transition-colors cursor-pointer"
-                  onClick={handleNextSegment}
-                  title="Next segment"
-                >
-                  <div className="relative">
-                    <RotateCw size={28} />
-                    <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
-                      10
-                    </span>
-                  </div>
-                </button>
-              </div>
+                  <button
+                    className="text-white/80 hover:text-white transition-colors cursor-pointer"
+                    onClick={handleNextSegment}
+                    title="Next segment"
+                  >
+                    <div className="relative">
+                      <RotateCw size={28} />
+                      <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold">
+                        10
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Progress Bar */}
@@ -277,7 +291,7 @@ const RecordingModal: React.FC<RecordingModalProps> = ({
                     style={{ width: `${progress * 100}%` }}
                   />
                   <div
-                    className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                     style={{
                       left: `${progress * 100}%`,
                       transform: "translate(-50%, -50%)",

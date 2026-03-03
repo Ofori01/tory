@@ -1,6 +1,10 @@
 export const endpoints = {
   baseUrl: "/api",
 
+  // Direct HTTPS URL to the backend — used for media (video) requests to
+  // bypass the Vite proxy, which buffers range requests and causes slow playback.
+  mediaUrl: "https://localhost:8000",
+
   //settings
   settings: "/settings",
 
