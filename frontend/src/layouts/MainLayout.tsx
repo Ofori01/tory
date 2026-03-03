@@ -13,7 +13,7 @@ const MainLayout: React.FC = () => {
           label: "System Fault",
         }}
       />
-      <main className="flex-1 min-h-0 overflow-y-auto mx-10 my-2">
+      <main className="flex-1 min-h-0 overflow-y-auto mx-10 ">
         <Outlet />
       </main>
       <Navbar className="flex items-center space-x-2 mx-10 mt-2 mb-2" />

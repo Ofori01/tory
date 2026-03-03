@@ -63,6 +63,9 @@ const io = new Server(server, {
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
 
+      // Allow all origins
+      if (config.cors.origins === "*") return callback(null, true);
+
       // Check if origin matches any allowed pattern
       const isAllowed = config.cors.origins.some((pattern) => {
         if (pattern instanceof RegExp) {

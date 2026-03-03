@@ -14,16 +14,7 @@ export const config = {
 
   // CORS configuration
   cors: {
-    origins: [
-      "https://localhost:9000", // Camera client on same server
-      "https://localhost:5173",
-      "https://localhost:5174",
-      "https://localhost:5175",
-      // Local network access - accept all private IP ranges
-      /^https:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/,
-      /^https:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/,
-      /^https:\/\/172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}(:\d+)?$/,
-    ],
+    origins: "*",
     methods: ["GET", "POST"],
   },
 

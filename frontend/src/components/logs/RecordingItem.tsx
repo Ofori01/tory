@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import type { Recording } from '../../types/logs';
-import { Play, MoreHorizontal, Trash2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React, { useState } from "react";
+import type { Recording } from "../../types/logs";
+import { Play, MoreHorizontal, Trash2 } from "lucide-react";
 
 interface RecordingItemProps {
   recording: Recording;
@@ -17,14 +16,18 @@ const getRelativeTime = (date: Date): string => {
   const diffDays = Math.round(diffMs / 86400000);
   const diffWeeks = Math.round(diffMs / 604800000);
 
-  if (diffMins < 1) return 'just now';
+  if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins} mins ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  return `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} ago`;
 };
 
-const RecordingItem: React.FC<RecordingItemProps> = ({ recording, onDelete, onClick }) => {
+const RecordingItem: React.FC<RecordingItemProps> = ({
+  recording,
+  onDelete,
+  onClick,
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -45,8 +48,12 @@ const RecordingItem: React.FC<RecordingItemProps> = ({ recording, onDelete, onCl
             {/* Placeholder camera feed look */}
             <div className="w-full h-full relative">
               <div className="absolute inset-0 bg-[#2a2518] opacity-80" />
-              <div className="absolute top-0.5 left-0.5 text-[5px] text-gray-500 font-mono">CAM</div>
-              <div className="absolute bottom-0.5 right-0.5 text-[5px] text-gray-500 font-mono">REC</div>
+              <div className="absolute top-0.5 left-0.5 text-[5px] text-gray-500 font-mono">
+                CAM
+              </div>
+              <div className="absolute bottom-0.5 right-0.5 text-[5px] text-gray-500 font-mono">
+                REC
+              </div>
             </div>
           </div>
         )}
@@ -79,10 +86,7 @@ const RecordingItem: React.FC<RecordingItemProps> = ({ recording, onDelete, onCl
         {menuOpen && (
           <>
             {/* Click-away backdrop */}
-            <div
-              className="fixed inset-0"
-              onClick={() => setMenuOpen(false)}
-            />
+            <div className="fixed inset-0" onClick={() => setMenuOpen(false)} />
             <div className="absolute right-0 z-999 -top-2 mt-1 z-50 bg-[#2a2a2a] border border-gray-700 rounded-md shadow-lg py-1 min-w-[120px]">
               <button
                 onClick={() => {
