@@ -22,15 +22,15 @@ export const config = {
   socketIO: {
     pingTimeout: 60000,
     pingInterval: 25000,
-    maxHttpBufferSize: 1e8, // 100 MB for large ICE candidates
+    maxHttpBufferSize: 1e8, // 100 MB 
     transports: ["websocket", "polling"],
   },
 
   // Camera configuration
   cameras: {
     allowedIds: ["front", "back"],
-    connectionTimeout: 30000, // 30 seconds
-    heartbeatInterval: 10000, // 10 seconds
+    connectionTimeout: 30000,
+    heartbeatInterval: 10000, 
   },
 
   // WebRTC configuration

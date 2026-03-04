@@ -1,8 +1,3 @@
-/**
- * WebRTC Signaling Handler
- * Handles WebRTC offer/answer/ICE candidate exchange between cameras and viewers
- */
-
 import logger from "../utils/logger.js";
 import cameraManager from "./cameraManager.js";
 import { config } from "../config/config.js";

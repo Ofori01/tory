@@ -27,12 +27,31 @@ interface UseWebRTCReturn {
   isLoading: boolean;
 }
 
-const configuration: RTCConfiguration = {
-  iceServers: [
+function buildIceConfig(): RTCConfiguration {
+  const iceServers: RTCIceServer[] = [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-  ],
-};
+  ];
+
+  const turnUrls = import.meta.env.VITE_TURN_URLS;
+  const turnUsername = import.meta.env.VITE_TURN_USERNAME;
+  const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL;
+
+  if (turnUrls && turnUsername && turnCredential) {
+    iceServers.push({
+      urls: turnUrls.split(",").map((u: string) => u.trim()),
+      username: turnUsername,
+      credential: turnCredential,
+    });
+    console.log("TURN server configured");
+  } else {
+    console.warn("No TURN server configured — WebRTC may fail across NATs");
+  }
+
+  return { iceServers };
+}
+
+const configuration = buildIceConfig();
 
 export const useWebRTC = ({
   cameraId,

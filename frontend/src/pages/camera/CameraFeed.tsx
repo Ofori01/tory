@@ -9,7 +9,6 @@ interface CameraFeedProps {
   cameraLocation: "Front" | "Back";
 }
 
-// Signaling server URL - update this based on your setup
 const SIGNALING_SERVER_URL =
   import.meta.env.VITE_SIGNALING_SERVER_URL || "https://localhost:9000";
 
@@ -31,11 +30,10 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
     });
 
   const isOnline = cameraStatus?.online ?? false;
-  const isCameraConnected = state === "connected" && remoteStream !== null;
+  const isCameraConnected = remoteStream !== null;
 
   // Update video element when stream changes or video element becomes available
   useEffect(() => {
-
     console.log(
       !!videoRef.current,
       "remoteStream:",
@@ -174,28 +172,29 @@ const CameraFeed: React.FC<CameraFeedProps> = ({
         </div>
       </div>
 
-      {/* Video feed */}
       <div className="absolute inset-0 bg-gray-900 h-full w-full">
-        {isCameraConnected ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-cover"
-            onLoadedMetadata={(e) =>
-              console.log(
-                "Video metadata loaded",
-                e.currentTarget.videoWidth,
-                e.currentTarget.videoHeight,
-              )
-            }
-            onCanPlay={() => console.log("Video can play")}
-            onPlaying={() => console.log("Video is playing")}
-            onWaiting={() => console.log("Video is waiting for data")}
-            onError={(e) => console.error("Video error:", e)}
-          />
-        ) : (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={cn(
+            "w-full h-full object-cover",
+            !isCameraConnected && "hidden",
+          )}
+          onLoadedMetadata={(e) =>
+            console.log(
+              "Video metadata loaded",
+              e.currentTarget.videoWidth,
+              e.currentTarget.videoHeight,
+            )
+          }
+          onCanPlay={() => console.log("Video can play")}
+          onPlaying={() => console.log("Video is playing")}
+          onWaiting={() => console.log("Video is waiting for data")}
+          onError={(e) => console.error("Video error:", e)}
+        />
+        {!isCameraConnected && (
           <div className="w-full h-full flex flex-col items-center justify-center text-white">
             {isLoading ? (
               <>

@@ -1,8 +1,3 @@
-/**
- * WebRTC Signaling Server for CCTV System
- * Production-grade implementation with Socket.IO
- */
-
 import fs from "fs";
 import https from "https";
 import express from "express";
@@ -19,10 +14,9 @@ import cameraManager from "./signaling/cameraManager.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Express app
 const app = express();
 
-// Middleware
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
